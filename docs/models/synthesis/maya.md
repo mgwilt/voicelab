@@ -5,6 +5,13 @@ Open **Direct run** for the synthesis workflows below. Use [Conversation](../../
 Maya 2 Native generates multilingual speech with named or cloned voices.
 Voice Lab runs the native MLX-Audio model locally and streams 24 kHz mono audio.
 
+## Generation defaults
+
+Backbone temperature `0.9`, top-k `64`, top-p `1.0`, and presence penalty `0.8` over `12` frames match the author's
+[engine defaults](https://github.com/MayaResearch/maya2-native/blob/c6b376868e268551d065c4206193e96257bef4a1/maya3/engine.py#L54).
+Depth sampling uses temperature `0.7` and top-k `64`.
+The author selected the backbone settings through a stability sweep.
+
 ## Generate speech
 
 Use Apple Silicon macOS. The first run downloads approximately 3.8 GB of model, codec, and speaker-encoder files.

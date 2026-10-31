@@ -6,6 +6,14 @@ Qwen3-Omni-30B-A3B-Instruct accepts speech or text and returns text with optiona
 Voice Lab runs its Thinker, Talker, and speech codec locally through MLX on Apple Silicon.
 The pinned 4-bit checkpoint requires approximately 22 GB of downloads, plus memory for inference.
 
+## Generation defaults
+
+The Thinker defaults to greedy decoding: temperature `0`, top-p `1`, and top-k `0`.
+This follows the author's [Instruct decoding guidance](https://huggingface.co/Qwen/Qwen3-Omni-30B-A3B-Instruct#reproduce-our-evaluation-results),
+not the sampled vLLM example on the same page.
+The Talker uses its [checkpoint configuration](https://huggingface.co/Qwen/Qwen3-Omni-30B-A3B-Instruct/blob/main/generation_config.json):
+temperature `0.9`, top-p `1.0`, top-k `50`, and repetition penalty `1.05`.
+
 ## Run a voice conversation
 
 Start the lab with `./voicelab`. Select **Qwen3 Omni**.

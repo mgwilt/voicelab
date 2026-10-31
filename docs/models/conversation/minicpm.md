@@ -5,6 +5,14 @@ For ongoing calls, use [Conversation](../../usage/conversations.md). The direct 
 Run speech conversations with the local `llama.cpp-omni` runtime on Apple Silicon.
 The lab supports live duplex sessions and recorded-audio or text questions with spoken answers.
 
+## Generation defaults
+
+Text temperature `0.7`, top-p `0.8`, and top-k `100` follow the pinned model's
+[chat and duplex defaults](https://huggingface.co/openbmb/MiniCPM-o-4_5/blob/eb4141de24550a3a1a4082f718be58f46b761728/modeling_minicpmo.py#L2444).
+Duplex speech temperature is `0.8`; listen probability scale is `1.0`; each chunk permits `20` speech tokens.
+The native protocol retains its [length penalty of `1.1`](https://github.com/OpenBMB/llama.cpp-omni/blob/a64932ec615e1463158129feaf2f0752d0c07a2e/tools/server/protocol.h).
+The generic checkpoint generation file uses different values; it does not override the model's specialized voice routines.
+
 ## Start
 
 ```sh

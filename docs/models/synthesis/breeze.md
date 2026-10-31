@@ -6,6 +6,14 @@ Breeze-TTS-2 generates streaming speech from text and a voice instruction.
 The lab's runtime uses native MLX on Apple Silicon.
 Output is mono 24 kHz PCM audio.
 
+## Generation defaults
+
+Temperature `0.9`, top-k `50`, and top-p `1.0` preserve the released
+[generation configuration](https://huggingface.co/BreezeBlue/Breeze-TTS-2/blob/main/generation_config.json)
+and its Transformers sampling defaults.
+Guidance `4.0` follows the author's [voice-design and direction recommendation](https://huggingface.co/BreezeBlue/Breeze-TTS-2#usage).
+With no instruction, this adapter's conditional and unconditional prompts are identical; guidance does not strengthen reference cloning.
+
 ## Use the model
 
 ```sh

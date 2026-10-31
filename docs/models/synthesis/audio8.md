@@ -5,6 +5,12 @@ Open **Direct run** for the synthesis workflows below. Use [Conversation](../../
 Audio8 Realistic 0.6B generates 44.1 kHz speech in 23 languages. Voice Lab runs
 the released model and codec locally through MLX-Audio's ArkTTS architecture.
 
+## Generation defaults
+
+Temperature `0.8`, top-p `0.95`, top-k `50`, with sampling enabled.
+These values follow the author's [inference example](https://huggingface.co/Edge0/Audio8-TTS-Realistic-0.6b#usage).
+They are a published starting point, not a measured optimum for MLX.
+
 ## Run
 
 ```sh

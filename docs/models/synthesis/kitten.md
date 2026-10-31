@@ -5,6 +5,14 @@ Open **Direct run** for the synthesis workflows below. Use [Conversation](../../
 KittenTTS 2 generates expressive speech with built-in or cloned voices.
 Voice Lab uses local KittenML 0.9.7 and emits mono 24 kHz audio.
 
+## Generation defaults
+
+The default `stable` preset resolves to temperature `0.8`, top-p `0.8`, top-k `50`, and min-p `0`.
+The optional `expressive` preset uses temperature `0.9` and top-p `0.9`.
+Blank sampler controls use the checkpoint's [preset configuration](https://huggingface.co/KittenML/kitten-tts-2/blob/main/config.json).
+Keep those controls blank to let preset changes take effect.
+The locked Kitten runtime retains repetition penalty `1.1`, token-run penalty `1.3`, and grace `10`.
+
 ## Generate speech
 
 ```sh

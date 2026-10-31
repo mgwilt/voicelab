@@ -4,6 +4,12 @@ For ongoing calls, use [Conversation](../../usage/conversations.md). The direct 
 
 PersonaPlex generates speech and text while it receives speech. Voice Lab runs a custom MLX implementation locally on Apple Silicon.
 
+## Generation defaults
+
+Text uses temperature `0.7` and top-k `25`. Audio uses temperature `0.8` and top-k `250`.
+These match NVIDIA's [LMGen defaults](https://github.com/NVIDIA/personaplex/blob/3428dfd95309a7f3c84fd93259ded0f810d1ff91/moshi/moshi/models/lm.py#L646).
+The two streams keep separate samplers.
+
 ## Run a conversation
 
 Accept the [model license](https://huggingface.co/nvidia/personaplex-7b-v1). Authenticate with `hf auth login` if the download requires access.

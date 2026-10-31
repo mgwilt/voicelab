@@ -6,6 +6,14 @@ NemotronLabs VoiceChat 11B supports duplex voice conversation and offline audio 
 The lab uses a community MLX runtime on Apple Silicon.
 Input is mono 16 kHz PCM16 audio. Output is mono 22.05 kHz PCM16 audio.
 
+## Generation defaults
+
+The runtime uses the checkpoint's decoding settings without application sampling overrides.
+NVIDIA's [speech configuration](https://huggingface.co/nvidia/NVIDIA-NemotronLabs-VoiceChat-11B/blob/main/config.json)
+sets guidance `0.2`, noise scale `0.001`, and top-p `0.95`.
+The converted checkpoint carries those values into MLX-VLM.
+The website exposes the seed and system prompt; generic temperature controls do not apply to every decoder here.
+
 ## Use the model
 
 For a live test, start the [shared website](../../usage/README.md).
@@ -14,6 +22,7 @@ Select Nemotron. Allow microphone access. Use headphones and select **Start conv
 Stop ends input and drains queued model frames. A disconnect cancels the session.
 Each session accepts at most 120 seconds of input.
 The runtime receives continuous audio while it produces output. Voice activity detection (VAD) does not gate that timeline.
+Nemotron sends cumulative user and assistant transcripts. The conversation view replaces each partial transcript as it grows or is revised.
 
 For an offline test, run:
 
@@ -63,6 +72,17 @@ Reports retain checkpoint, source, runtime, and timing evidence. The runner also
 A replay does not test a mobile microphone.
 
 ## Implementation and evidence
+
+### Known live-input limitation
+
+The MLX streaming runtime can generate an answer from non-speech input.
+A controlled test with quiet synthetic noise produced an unrelated answer without a user transcript or speaker playback.
+It also transcribed and answered an attenuated recording of its own voice.
+These observations do not establish the cause of every unwanted reply or the behavior of NVIDIA's reference runtime.
+Browser echo cancellation does not resolve responses triggered by background noise alone.
+Use **Output → Mute speaker** to test microphone input without assistant playback. This is a diagnostic control, not a model fix.
+
+### Runtime and validation
 
 The runtime lives under `voicelab_inference.nemotron.mlx`.
 Definitions live under `voicelab_models.nemotron`.

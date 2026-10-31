@@ -11,13 +11,15 @@ applications → inference → model definitions → core
 ```
 
 Applications can also use model definitions and core directly.
+The web host uses `voicelab.conversations` for shared conversation orchestration.
+That application module must not import the web host or HTTP/WebRTC libraries.
 Core uses only the standard library.
 Model definitions do not import inference frameworks.
 Inference code does not import applications or another model's implementation.
 
 ## Select the owner
 
-- `apps/voicelab`: commands, run execution, and reports.
+- `apps/voicelab`: commands, run execution, reports, and reusable conversation pipelines.
 - `apps/voicelab-web`: one FastAPI website and its frontend.
 - `packages/voicelab-core`: framework-free contracts, audio values, and shared measurements.
 - `packages/voicelab-models`: model identities, constraints, and validated requests.

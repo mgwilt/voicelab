@@ -5,6 +5,13 @@ For ongoing calls, use [Conversation](../../usage/conversations.md). The direct 
 Ming Audio Tiny processes speech and text. Its optional Talker produces spoken responses.
 Voice Lab runs both components locally with MLX on Apple Silicon.
 
+## Generation defaults
+
+Guidance `2.0`, sigma `0.25`, and temperature `0.0` match the official
+[Talker defaults](https://huggingface.co/inclusionAI/Ming-3.0-audio-tiny/blob/401b1abc63de0862dfbc9cd2a40895019d742d09/talker/inference.py#L317).
+The lab retains the locked MLX runtime's `10` flow steps and greedy Thinker decoding.
+These speech settings do not change text sampling.
+
 ## Select a task
 
 Start the shared website with `./voicelab`. Select Ming Audio and choose a task.

@@ -5,6 +5,13 @@ Open **Direct run** for the synthesis workflows below. Use [Conversation](../../
 Ming 3.0 TTS 0.5B generates 44.1 kHz speech with local voice cloning, built-in
 voices, voice design, and delivery controls. The lab uses the dense MLX model.
 
+## Generation defaults
+
+Guidance `2.0`, sigma `0.25`, and temperature `0.0` match the official
+[inference defaults](https://github.com/inclusionAI/Ming-3.0-tts/blob/9332fb9443325d4726ce02cefd4ec1c211df4079/infer.py#L76).
+The lab retains the locked MLX runtime's `10` flow steps.
+Temperature controls solver noise, not text-token sampling.
+
 ## Run
 
 ```sh

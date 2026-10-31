@@ -5,6 +5,12 @@ Open **Direct run** for the synthesis workflows below. Use [Conversation](../../
 Phonon 31M generates English speech at 24 kHz. Voice Lab uses its native
 Transformers model and a frame-by-frame inference loop.
 
+## Generation defaults
+
+Temperature `0.3` matches the checkpoint's
+[generation configuration](https://huggingface.co/gradium/phonon-31m-en/blob/main/generation_config.json).
+The drifting flow head uses its fixed single-step decoder.
+
 ## Run
 
 ```sh

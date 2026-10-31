@@ -6,6 +6,12 @@ CSM-1B generates mono 24 kHz speech from text and optional reference speech.
 It is a contextual synthesis model, not the hosted Sesame assistant or a duplex conversation model.
 Speaker IDs select conversation roles. They do not select named preset voices.
 
+## Generation defaults
+
+Temperature `0.9` and top-k `50` match the official
+[CSM generator defaults](https://github.com/SesameAILabs/csm/blob/daed31e6d42cf71873999075de204fa37d2acec3/generator.py#L110).
+Both lab engines receive these values.
+
 ## Use the model
 
 ```sh

@@ -11,6 +11,8 @@ Read [conversation ownership](conversations.md) before changing Pipecat integrat
 Use a compact workbench with clear navigation, tabs, panels, and status.
 Adapt these elements for touch and narrow screens. Keep controls usable with the software keyboard open.
 Do not require hover, horizontal page scrolling, or a desktop sidebar to run a run.
+On phones, let the page scroll the model list. Open model pickers must not sit behind the call bar.
+Keep playback controls and detailed timing in Output. Keep the call bar compact.
 
 The shell owns navigation and run actions. Model panels own typed run controls.
 Changing views must preserve control values and active session ownership.

@@ -6,6 +6,13 @@ OmniVoice generates multilingual speech through diffusion.
 It supports automatic voices, voice design through instructions, and reference-based voice cloning.
 Voice Lab uses the local OmniVoice 0.2.1 API and returns mono 24 kHz audio.
 
+## Generation defaults
+
+The lab uses the official [generation defaults](https://github.com/k2-fsa/OmniVoice/blob/master/omnivoice/models/omnivoice.py):
+`32` steps, guidance `2.0`, time shift `0.1`, layer penalty `5.0`, position temperature `5.0`, and class temperature `0.0`.
+Speed is `1.0`. Prompt preprocessing, denoising, and output postprocessing stay enabled.
+These diffusion controls have different meanings from token sampling in autoregressive models.
+
 ## Generate or design a voice
 
 ```sh

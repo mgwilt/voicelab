@@ -5,6 +5,13 @@ Open **Direct run** for the synthesis workflows below. Use [Conversation](../../
 Drama 3 generates expressive speech and clones voices from reference recordings.
 Voice Lab runs the native MLX-Audio model locally and streams 44.1 kHz mono audio.
 
+## Generation defaults
+
+Temperature `1.0`, top-p `0.9`, and top-k `30` follow the author's
+[published benchmark settings](https://huggingface.co/fishaudio/drama-3#performance).
+This is a documented baseline, not a claim that those values are best for every voice.
+Clearing the website's top-k field delegates filtering to the locked MLX runtime, which disables top-k by default.
+
 ## Generate speech
 
 Use Apple Silicon macOS with enough memory for weights and inference caches.

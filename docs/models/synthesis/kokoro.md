@@ -5,6 +5,12 @@ Open **Direct run** for the synthesis workflows below. Use [Conversation](../../
 Kokoro 82M generates 24 kHz speech with 54 preset voices. The lab uses MLX-Audio
 and the upstream Misaki text frontend.
 
+## Generation defaults
+
+Speed `1.0` matches the official [pipeline default](https://github.com/hexgrad/kokoro/blob/main/kokoro/pipeline.py).
+Kokoro has no token-temperature, top-p, or top-k sampler in this runtime.
+Voice and language remain explicit input choices.
+
 ## Run
 
 ```sh
