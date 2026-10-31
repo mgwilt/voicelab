@@ -21,3 +21,10 @@ test("API errors show readable messages without exposing wire JSON", () => {
   expect(errorMessage({ detail: "Another model session is active" }, 409)).toBe("Another model session is active");
   expect(errorMessage(null, 500)).toContain("Try again");
 });
+
+test("text notices validate snapshot semantics independently of finality", () => {
+  const wire = { type: "text", text: "I am", speaker: "assistant", final: false, turn: 0, stage: "", seconds: null, output_rtf: null, input_rtf: null };
+  expect(decodeNotice(wire).textMode).toBe("delta");
+  expect(decodeNotice({ ...wire, text_mode: "snapshot" })).toMatchObject({ textMode: "snapshot", final: false });
+  for (const text_mode of [null, true, "replace", 1]) expect(() => decodeNotice({ ...wire, text_mode })).toThrow();
+});
