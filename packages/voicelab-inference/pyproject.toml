@@ -1,0 +1,18 @@
+[project]
+name = "voicelab-inference"
+version = "0.1.0"
+requires-python = ">=3.14,<3.15"
+license = "Apache-2.0"
+license-files = ["src/voicelab_inference/sesame/torch/LICENSE", "src/voicelab_inference/sesame/torch/NOTICE", "src/voicelab_inference/breeze/mlx/LICENSE", "src/voicelab_inference/breeze/mlx/NOTICE"]
+dependencies = ["voicelab-core", "voicelab-models", "numpy>=2.0", "torch==2.14.1", "transformers==5.22.1", "accelerate>=1.15.0", "soundfile>=0.14.0"]
+
+[project.optional-dependencies]
+mlx = ["mlx-vlm==0.7.11; sys_platform == 'darwin' and platform_machine == 'arm64'", "mlx-audio==0.6.3; sys_platform == 'darwin' and platform_machine == 'arm64'"]
+
+[tool.uv.sources]
+voicelab-core = { workspace = true }
+voicelab-models = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14"]
+build-backend = "uv_build"

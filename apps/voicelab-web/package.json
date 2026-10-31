@@ -1,0 +1,16 @@
+{
+  "name": "voicelab-web",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.4.2",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "build": "bun build ./frontend/main.ts ./frontend/audio/capture-worklet.ts --outdir ./src/voicelab_web/static/dist --target browser --minify --sourcemap=external --entry-naming=[name].[ext]",
+    "test": "bun test tests"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "21.0.4",
+    "@types/bun": "1.4.2",
+    "typescript": "7.0.2"
+  }
+}

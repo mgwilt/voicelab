@@ -1,0 +1,1 @@
+"""Focused web application modules."""

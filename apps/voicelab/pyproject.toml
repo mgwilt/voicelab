@@ -1,0 +1,21 @@
+[project]
+name = "voicelab"
+version = "0.1.0"
+description = "Voice AI model experimentation."
+requires-python = ">=3.14,<3.15"
+dependencies = ["voicelab-core", "voicelab-models", "voicelab-inference"]
+
+[project.scripts]
+voicelab = "voicelab.launch.cli:main"
+voicelab-breeze = "voicelab.breeze.cli:main"
+voicelab-sesame = "voicelab.sesame.cli:main"
+voicelab-nemotron = "voicelab.nemotron.cli:main"
+
+[tool.uv.sources]
+voicelab-core = { workspace = true }
+voicelab-models = { workspace = true }
+voicelab-inference = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14"]
+build-backend = "uv_build"

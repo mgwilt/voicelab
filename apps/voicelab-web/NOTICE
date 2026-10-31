@@ -1,0 +1,11 @@
+Voice Lab web application
+
+The shared synthesis delivery lifecycle and related regression tests were adapted
+from mgwilt/csm-mps, revision 97f4e768f07e0572649b5937fa6ca1855c5239d1, and subsequently
+reorganized for Voice Lab's typed, shared multi-model transport. The original code
+is Apache-2.0 licensed.
+
+CSM Inference
+Copyright 2026 Mike
+This project is not affiliated with or endorsed by Sesame.
+Source: https://github.com/mgwilt/csm-mps

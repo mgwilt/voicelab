@@ -1,0 +1,18 @@
+CSM Inference
+Copyright 2026 Mike
+
+This project provides an independent inference implementation for Sesame CSM-1B.
+It uses Hugging Face Transformers and the separately downloaded Sesame CSM-1B
+checkpoint. Upstream projects and model weights retain their own licenses.
+
+Sesame CSM: https://github.com/SesameAILabs/csm
+CSM-1B model: https://huggingface.co/sesame/csm-1b
+Transformers: https://github.com/huggingface/transformers
+
+This project is not affiliated with or endorsed by Sesame.
+
+Voice Lab adaptation: typed package boundaries, request validation, lifecycle
+ownership, experiment reporting, and FastAPI transport.
+Source: https://github.com/mgwilt/csm-mps
+Source revision: 97f4e768f07e0572649b5937fa6ca1855c5239d1
+Adapted modules: runtime.py, decoding/depth.py, decoding/mimi.py, decoding/stream.py.

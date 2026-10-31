@@ -1,0 +1,70 @@
+# Local configuration and experiment evidence
+/.local/
+/artifacts/
+/models/
+/checkpoints/
+/recordings/
+/outputs/
+/.codex/
+/.agents/
+/.aws/
+.env
+.env.*
+!.env.example
+
+# Credentials and TLS files
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+
+# Model weights and raw audio
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.gguf
+*.onnx
+*.wav
+*.pcm
+*.mp3
+*.flac
+*.ogg
+*.opus
+*.m4a
+*.aac
+
+# Python environments, caches, and build output
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.ty_cache/
+.pytest_cache/
+.mypy_cache/
+.cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Frontend dependencies and generated output
+node_modules/
+coverage/
+*.tsbuildinfo
+
+# Local process, editor, and OS files
+*.log
+*.pid
+*.swp
+*.swo
+.idea/
+.vscode/
+.DS_Store
+._*
+Thumbs.db

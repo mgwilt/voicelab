@@ -1,0 +1,12 @@
+Voice Lab Breeze MLX backend
+
+Sampling algorithms adapted from mgwilt/breeze-tts-mps, revision
+1367ec396248880496d5cfed213ef43b48d9640b, breeze_infer/mlx_depth.py and
+breeze_infer/mlx_speech.py, distributed under Apache License 2.0.
+https://github.com/mgwilt/breeze-tts-mps
+
+The neural architecture and Qwen3-TTS codec are supplied by MLX-Audio 0.6.3.
+https://github.com/Blaizzy/mlx-audio
+
+Model weights are not included. Breeze-TTS-2 weights have their own license;
+this source license does not grant rights to those weights.
