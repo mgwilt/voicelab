@@ -11,6 +11,9 @@ from fastapi.staticfiles import StaticFiles
 from voicelab_models.breeze.synthesis import SynthesisRequest as BreezeRequest
 from voicelab_models.sesame.model import SynthesisRequest as SesameRequest
 from voicelab_web.catalog import ModelInfoUnion, models
+from voicelab_web.conversations.composition import create_backend
+from voicelab_web.conversations.routes import Conversations
+from voicelab_web.conversations.routes import install as install_pipecat
 from voicelab_web.models.conversation_routes import install as install_conversations
 from voicelab_web.models.nemotron.engine import Engine
 from voicelab_web.models.nemotron.session import serve_session as serve_nemotron
@@ -63,6 +66,7 @@ def create_app(
         try:
             yield
         finally:
+            await conversations.close()
             await synthesis_routes.release()
             await owned_engine.call(owned_engine.unload)
             owned_engine.shutdown()
@@ -82,6 +86,12 @@ def create_app(
         await release_duplex()
 
     install_conversations(app, lease, release_local)
+    conversations = Conversations(
+        lease,
+        release_local,
+        lambda request: create_backend(request, synthesis_routes.voices),
+    )
+    install_pipecat(app, conversations)
     static = Path(__file__).parent / "static"
 
     @app.get("/")

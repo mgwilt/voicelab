@@ -18,6 +18,7 @@ export class PersonaPlexPanel implements ControlPanel {
   constructor(private readonly model: PersonaPlexModel) {
     this.form.note("Your microphone stays live while the model speaks. Inference runs locally; timing measures model and codec processing.");
   }
+  async conversationConfig(): Promise<object> { return { prompt: this.prompt(), voice: this.voice(), reference_audio: await this.reference(), seed: this.seed(), text_temperature: this.textTemperature(), audio_temperature: this.audioTemperature(), text_top_k: this.textTopK(), audio_top_k: this.audioTopK() }; }
   createSession(emit: Emit): VoiceSession { return new PersonaPlexSession(this.model, async () => ({ type: "start", prompt: this.prompt(), voice: this.voice(), reference_audio: await this.reference(), seed: this.seed(), text_temperature: this.textTemperature(), audio_temperature: this.audioTemperature(), text_top_k: this.textTopK(), audio_top_k: this.audioTopK() }), emit); }
   setDisabled(disabled: boolean): void { this.form.setDisabled(disabled); }
   dispose(): void { this.element.remove(); }

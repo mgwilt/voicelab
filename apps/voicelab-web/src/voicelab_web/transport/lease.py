@@ -10,6 +10,20 @@ from voicelab_web.catalog import ModelId
 class SessionLease:
     def __init__(self) -> None:
         self.active: ModelId | None = None
+        self.owner: object | None = None
+
+    def acquire(self, model: ModelId) -> object:
+        if self.owner is not None:
+            raise RuntimeError("Another model session is active")
+        token = object()
+        self.owner = token
+        self.active = model
+        return token
+
+    def release(self, token: object) -> None:
+        if self.owner is token:
+            self.owner = None
+            self.active = None
 
     async def run(
         self,
@@ -36,8 +50,8 @@ class SessionLease:
             await socket.close(code=1013)
             return
         # Runs on one event loop; no await between testing and acquiring ownership.
-        self.active = model
+        token = self.acquire(model)
         try:
             await operation()
         finally:
-            self.active = None
+            self.release(token)

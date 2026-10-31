@@ -5,6 +5,7 @@ requires-python = ">=3.14,<3.15"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 dependencies = [
+    "pipecat-ai[webrtc]",
     "voicelab-core",
     "voicelab-models",
     "voicelab-inference",
@@ -20,6 +21,7 @@ dependencies = [
 voicelab-web = "voicelab_web.main:main"
 
 [tool.uv.sources]
+pipecat-ai = { git = "https://github.com/pipecat-ai/pipecat.git", rev = "82c4fdb484db32e3ef933d03c59a395dd7f9a53b" }
 voicelab-core = { workspace = true }
 voicelab-models = { workspace = true }
 voicelab-inference = { workspace = true }

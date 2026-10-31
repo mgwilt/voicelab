@@ -1,5 +1,7 @@
 # Audio8
 
+Open **Direct run** for the synthesis workflows below. Use [Conversation](../../usage/conversations.md) for ongoing voice calls.
+
 Audio8 Realistic 0.6B generates 44.1 kHz speech in 23 languages. Voice Lab runs
 the released model and codec locally through MLX-Audio's ArkTTS architecture.
 

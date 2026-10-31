@@ -28,6 +28,8 @@ export class DuplexPanel implements ControlPanel {
       labeled("Seed", this.seed, "Repeat a seed to hold sampling settings constant."),
       this.liveNote, this.tools.element);
   }
+  async conversationConfig(): Promise<object> { return { type: "start", prompt: this.prompt.value, seed: readInteger(this.seed) }; }
+  prepareConversation(): void { this.mode.hidden = true; this.tools.element.hidden = true; }
   createSession(emit: Emit): VoiceSession {
     if ([...this.prompt.value].some(character => character.codePointAt(0) === undefined || (character.codePointAt(0) ?? 0) > 127)) {
       throw new Error("This model requires an ASCII prompt.");

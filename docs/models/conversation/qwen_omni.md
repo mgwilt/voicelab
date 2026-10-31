@@ -1,5 +1,7 @@
 # Qwen3 Omni
 
+For ongoing calls, use [Conversation](../../usage/conversations.md). The direct workflows below remain available in **Direct run**.
+
 Qwen3-Omni-30B-A3B-Instruct accepts speech or text and returns text with optional speech.
 Voice Lab runs its Thinker, Talker, and speech codec locally through MLX on Apple Silicon.
 The pinned 4-bit checkpoint requires approximately 22 GB of downloads, plus memory for inference.

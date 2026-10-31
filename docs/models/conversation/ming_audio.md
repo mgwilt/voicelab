@@ -1,5 +1,7 @@
 # Ming Audio Tiny
 
+For ongoing calls, use [Conversation](../../usage/conversations.md). The direct workflows below remain available in **Direct run**.
+
 Ming Audio Tiny processes speech and text. Its optional Talker produces spoken responses.
 Voice Lab runs both components locally with MLX on Apple Silicon.
 

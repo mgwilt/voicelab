@@ -1,7 +1,10 @@
 export type AddedSynthesisId = "phonon" | "kokoro" | "audio8" | "ming_tts" | "drama" | "maya" | "omnivoice" | "kitten";
 export type ModelId = "nemotron" | "sesame" | "breeze" | AddedSynthesisId | "personaplex" | "ming_audio" | "qwen_omni" | "minicpm";
 
+export type ConversationMode = "cascade" | "turn" | "duplex";
+
 interface ModelBase {
+  readonly conversationModes?: readonly ConversationMode[];
   readonly label: string;
   readonly description: string;
   readonly backend: string;

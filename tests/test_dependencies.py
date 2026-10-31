@@ -95,9 +95,21 @@ class DependencyTests(unittest.TestCase):
                                     ),
                                     f"{name} crosses {'.'.join(parts)} ownership",
                                 )
+                            self.assertNotEqual(
+                                module,
+                                "pipecat",
+                                f"Keep Pipecat in the application: {source}",
+                            )
                             if namespace == "voicelab_models":
                                 self.assertNotIn(
-                                    module, {"torch", "transformers", "mlx", "numpy"}
+                                    module,
+                                    {
+                                        "torch",
+                                        "transformers",
+                                        "mlx",
+                                        "numpy",
+                                        "pipecat",
+                                    },
                                 )
                             if namespace == "voicelab_core":
                                 self.assertIn(

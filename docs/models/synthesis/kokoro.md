@@ -1,5 +1,7 @@
 # Kokoro
 
+Open **Direct run** for the synthesis workflows below. Use [Conversation](../../usage/conversations.md) for ongoing voice calls.
+
 Kokoro 82M generates 24 kHz speech with 54 preset voices. The lab uses MLX-Audio
 and the upstream Misaki text frontend.
 

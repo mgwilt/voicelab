@@ -1,5 +1,7 @@
 # Phonon
 
+Open **Direct run** for the synthesis workflows below. Use [Conversation](../../usage/conversations.md) for ongoing voice calls.
+
 Phonon 31M generates English speech at 24 kHz. Voice Lab uses its native
 Transformers model and a frame-by-frame inference loop.
 

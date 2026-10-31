@@ -113,3 +113,29 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline-offs
 @media (max-height: 500px) {
   .runbar { position: static; }
 }
+
+/* Conversation layout keeps controls within thumb reach on narrow screens. */
+[hidden] { display: none !important; }
+.application { min-width: 0; }
+.workflow-tabs { display: flex; gap: .5rem; padding: .5rem; border-bottom: 1px solid var(--border, #343a46); }
+.workflow-tabs button { flex: 1; min-height: 44px; background: transparent; color: inherit; border: 1px solid transparent; border-radius: .5rem; }
+.workflow-tabs button[aria-current="page"] { background: #253247; border-color: #4d7ab4; }
+.conversation { display: flex; flex-direction: column; gap: .75rem; min-height: 75dvh; padding: .75rem; }
+.conversation select, .conversation textarea { width: 100%; box-sizing: border-box; min-height: 44px; }
+.conversation-settings { border: 1px solid var(--border, #343a46); border-radius: .6rem; padding: .6rem; }
+.conversation-settings > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.conversation-settings[open] { max-height: 65dvh; overflow-y: auto; }
+.conversation-feed { flex: 1; display: flex; flex-direction: column; gap: .8rem; overflow-wrap: anywhere; }
+.conversation-message { padding: .8rem; border-radius: .7rem; background: #202733; max-width: 94%; }
+.conversation-message.user { background: #20344c; align-self: flex-end; }
+.conversation-message p { white-space: pre-wrap; margin: .3rem 0 0; }
+.conversation-footer { position: sticky; bottom: 0; padding: .75rem 0 max(.5rem, env(safe-area-inset-bottom)); background: #151a22; }
+.conversation-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.conversation-actions button { min-height: 48px; }
+.conversation-timing { font-size: .85rem; color: #b1bfd2; }
+.conversation-media audio { width: 100%; height: 38px; margin-bottom: .5rem; }
+@media (min-width: 600px) { .conversation { max-width: 760px; margin-inline: auto; } .conversation-actions { grid-template-columns: repeat(4, 1fr); } }
+.conversation-metrics summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.conversation-metrics dl { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; font-size: .85rem; }
+.conversation-metrics dd { margin: 0; }
+.conversation-message [data-interrupted="true"]::after { content: " · interrupted"; color: #b1bfd2; font-size: .85em; }

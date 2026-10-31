@@ -31,6 +31,8 @@ class FakeRuntime(MiniCPMNative):
         self,
         emit: Callable[[Event], None],
         cancelled: Callable[[], bool] = never_cancel,
+        *,
+        request: Request | None = None,
     ) -> None:
         emit(Event("text", text="Hello"))
         emit(Event("audio", pcm=bytes(480)))

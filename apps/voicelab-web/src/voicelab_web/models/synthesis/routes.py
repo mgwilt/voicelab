@@ -9,6 +9,7 @@ from fastapi import FastAPI, WebSocket
 from pydantic import BaseModel
 
 from voicelab_web.catalog_types import ModelId
+from voicelab_web.conversations.adapters.synthesis import SynthesisVoice, Voice
 from voicelab_web.models.synthesis.service import SynthesisService
 from voicelab_web.models.synthesis.session import serve_session
 from voicelab_web.transport.lease import SessionLease
@@ -29,6 +30,7 @@ class SynthesisRoutes:
         self.lease = lease
         self.release_duplex = release_duplex
         self.services: list[Unloadable] = []
+        self.voices: dict[ModelId, Callable[[BaseModel], Voice]] = {}
 
     async def release(self, keep: Unloadable | None = None) -> None:
         for service in self.services:
@@ -39,6 +41,7 @@ class SynthesisRoutes:
         self, model: ModelId, service: SynthesisService[Request]
     ) -> None:
         self.services.append(service)
+        self.voices[model] = lambda settings: SynthesisVoice(service, settings)
 
         async def run(socket: WebSocket) -> None:
             await self.release_duplex()

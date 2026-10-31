@@ -1,5 +1,7 @@
 # PersonaPlex 7B
 
+For ongoing calls, use [Conversation](../../usage/conversations.md). The direct workflows below remain available in **Direct run**.
+
 PersonaPlex generates speech and text while it receives speech. Voice Lab runs a custom MLX implementation locally on Apple Silicon.
 
 ## Run a conversation

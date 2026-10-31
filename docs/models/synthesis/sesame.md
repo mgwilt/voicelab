@@ -1,5 +1,7 @@
 # Sesame CSM
 
+Open **Direct run** for the synthesis workflows below. Use [Conversation](../../usage/conversations.md) for ongoing voice calls.
+
 CSM-1B generates mono 24 kHz speech from text and optional reference speech.
 It is a contextual synthesis model, not the hosted Sesame assistant or a duplex conversation model.
 Speaker IDs select conversation roles. They do not select named preset voices.

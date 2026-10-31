@@ -1,5 +1,16 @@
-import type { Model } from "../domain/session.js";
+import type { Model, ConversationMode } from "../domain/session.js";
 import { boolean, record, text } from "./decode.js";
+
+function conversationModes(value: unknown): readonly ConversationMode[] {
+  if (value === undefined) return []; // Older servers do not expose conversation support.
+  if (!Array.isArray(value)) throw new Error("Invalid conversation modes");
+  const modes: ConversationMode[] = [];
+  for (const mode of value) {
+    if ((mode !== "cascade" && mode !== "turn" && mode !== "duplex") || modes.includes(mode)) throw new Error("Invalid conversation mode");
+    modes.push(mode);
+  }
+  return modes;
+}
 
 export function decodeCatalog(value: unknown): readonly Model[] {
   if (!Array.isArray(value)) throw new Error("Invalid model catalog");
@@ -9,7 +20,7 @@ export function decodeCatalog(value: unknown): readonly Model[] {
     const id = text(row["id"]);
     if (ids.has(id)) throw new Error("Duplicate model in catalog");
     ids.add(id);
-    const base = {
+    const base = { conversationModes: conversationModes(row["conversation_modes"]),
       label: text(row["label"]), description: text(row["description"]),
       backend: text(row["backend"]), available: boolean(row["available"]),
       reason: row["reason"] === null ? null : text(row["reason"]),

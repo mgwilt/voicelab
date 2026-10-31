@@ -1,5 +1,7 @@
 # Ming TTS
 
+Open **Direct run** for the synthesis workflows below. Use [Conversation](../../usage/conversations.md) for ongoing voice calls.
+
 Ming 3.0 TTS 0.5B generates 44.1 kHz speech with local voice cloning, built-in
 voices, voice design, and delivery controls. The lab uses the dense MLX model.
 

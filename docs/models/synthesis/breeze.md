@@ -1,5 +1,7 @@
 # Breeze TTS
 
+Open **Direct run** for the synthesis workflows below. Use [Conversation](../../usage/conversations.md) for ongoing voice calls.
+
 Breeze-TTS-2 generates streaming speech from text and a voice instruction.
 The lab's runtime uses native MLX on Apple Silicon.
 Output is mono 24 kHz PCM audio.

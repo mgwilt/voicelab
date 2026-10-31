@@ -5,6 +5,7 @@ Read the nearest source `AGENTS.md` for local constraints.
 
 - Change ownership or dependencies: [Architecture](architecture.md).
 - Add or change a command: [CLI](cli.md).
+- Change conversation orchestration: [Conversations](conversations.md).
 - Change the website: [Frontend and transport](frontend.md).
 - Test a change: [Verification](verification.md).
 - Edit repository documentation: [Writing guide](documentation.md).

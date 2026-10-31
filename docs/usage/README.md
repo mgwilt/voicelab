@@ -13,7 +13,14 @@ The launcher prepares dependencies and website files. The runtime loads model we
 Only one website session can use inference at a time. Stop the current session before you start another.
 The server stays available between sessions.
 
-## Start a session
+## Start a conversation
+
+Select a model in **Conversation**, then select **Start conversation**.
+Read [conversation usage](conversations.md) for modes, controls, and limits.
+
+## Start a direct run
+
+Open **Direct run**.
 
 1. Open **Models**. Search by name, workflow, or runtime, then select a model.
 2. Use **Controls** to supply inputs and adjust the model settings.

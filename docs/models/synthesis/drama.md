@@ -1,5 +1,7 @@
 # Fish Audio Drama 3
 
+Open **Direct run** for the synthesis workflows below. Use [Conversation](../../usage/conversations.md) for ongoing voice calls.
+
 Drama 3 generates expressive speech and clones voices from reference recordings.
 Voice Lab runs the native MLX-Audio model locally and streams 44.1 kHz mono audio.
 

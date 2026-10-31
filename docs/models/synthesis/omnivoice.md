@@ -1,5 +1,7 @@
 # OmniVoice
 
+Open **Direct run** for the synthesis workflows below. Use [Conversation](../../usage/conversations.md) for ongoing voice calls.
+
 OmniVoice generates multilingual speech through diffusion.
 It supports automatic voices, voice design through instructions, and reference-based voice cloning.
 Voice Lab uses the local OmniVoice 0.2.1 API and returns mono 24 kHz audio.

@@ -1,8 +1,9 @@
 """Validated public model identities and transport capabilities."""
 
+import platform
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 ModelId = Literal[
     "nemotron",
@@ -30,6 +31,23 @@ class ModelInfo(BaseModel):
     backend: str
     available: bool
     reason: str | None = None
+
+    @computed_field
+    @property
+    def conversation_modes(self) -> tuple[Literal["cascade", "turn", "duplex"], ...]:
+        if (
+            not self.available
+            or platform.system() != "Darwin"
+            or platform.machine() != "arm64"
+        ):
+            return ()
+        if isinstance(self, MiniCPMInfo):
+            return ("duplex", "turn")
+        if isinstance(self, (NemotronInfo, PersonaPlexInfo)):
+            return ("duplex",)
+        if isinstance(self, (QwenOmniInfo, MingAudioInfo)):
+            return ("turn",)
+        return ("cascade",)
 
 
 class NemotronInfo(ModelInfo):

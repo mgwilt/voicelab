@@ -1,3 +1,4 @@
+import { hideFields } from "../../conversation/settings.js";
 import { AudioInput } from "../../components/audio-input.js";
 import type { ControlPanel } from "../../components/panel.js";
 import type { Emit, VoiceSession, QwenOmniModel } from "../../domain/session.js";
@@ -33,6 +34,8 @@ export class QwenOmniPanel implements ControlPanel {
     this.context.element.append(this.history.element);
     this.form.note("Record or upload a question, or use text. Qwen finishes its text response before generating speech. This is turn-based conversation.");
   }
+  prepareConversation(): void { hideFields(this.element, ["Speak the answer"]); this.audio.element.hidden = true; this.history.element.hidden = true; }
+  async conversationConfig(): Promise<object> { return { prompt: this.prompt(), system_prompt: this.system(), speaker: this.speaker(), return_audio: true, stream_audio: this.streaming(), seed: this.seed(), max_tokens: this.tokens(), temperature: this.temperature(), top_p: this.topP(), top_k: this.topK(), talker_max_tokens: this.speechTokens(), talker_temperature: this.speechTemperature(), talker_top_p: this.speechP(), talker_top_k: this.speechK(), talker_repetition_penalty: this.repetition(), chunk_frames: this.chunk() }; }
   createSession(emit: Emit): VoiceSession {
     const file = this.audio.read();
     const values = { prompt: this.prompt(), system_prompt: this.system(), speaker: this.speaker(), return_audio: this.speech(), stream_audio: this.streaming(), seed: this.seed(), max_tokens: this.tokens(), temperature: this.temperature(), top_p: this.topP(), top_k: this.topK(), talker_max_tokens: this.speechTokens(), talker_temperature: this.speechTemperature(), talker_top_p: this.speechP(), talker_top_k: this.speechK(), talker_repetition_penalty: this.repetition(), chunk_frames: this.chunk() };

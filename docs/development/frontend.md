@@ -3,6 +3,9 @@
 One FastAPI application serves all model tests. The frontend uses vanilla TypeScript 7 components.
 Bun installs dependencies, builds browser files, and runs frontend tests.
 
+Conversation is the default workflow. Direct run retains model-specific generation and tool workflows.
+Read [conversation ownership](conversations.md) before changing Pipecat integration.
+
 ## Keep the workbench mobile first
 
 Use a compact workbench with clear navigation, tabs, panels, and status.

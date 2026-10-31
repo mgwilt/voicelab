@@ -52,7 +52,9 @@ export class SpeechForm {
   text(label: string, value: string, maxLength: number): () => string {
     const input = element("textarea");
     input.value = value; input.maxLength = maxLength; input.rows = 3; input.required = true;
-    this.inputs.push(input); this.element.append(labeled(label, input));
+    const field = labeled(label, input);
+    if (label === "Text to speak") field.dataset["speechText"] = "true";
+    this.inputs.push(input); this.element.append(field);
     return () => {
       if (input.value.trim() === "" || input.value.length > maxLength) throw new Error(`Enter ${label.toLowerCase()} within ${maxLength} characters.`);
       return input.value;
@@ -103,6 +105,11 @@ export class SpeechPanel<Request extends object> implements ControlPanel {
   private readonly request: () => Request | Promise<Request>;
   constructor(private readonly model: SynthesisModel, build: (form: SpeechForm) => () => Request | Promise<Request>) {
     this.request = build(this.form);
+  }
+  async conversationConfig(): Promise<object> { return this.request(); }
+  prepareConversation(): void {
+    const field = this.element.querySelector("[data-speech-text]");
+    if (field instanceof HTMLElement) field.hidden = true;
   }
   createSession(emit: Emit): VoiceSession { return new SynthesisSession({ model: this.model, request: this.request }, emit); }
   setDisabled(disabled: boolean): void { this.form.setDisabled(disabled); }

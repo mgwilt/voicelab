@@ -119,6 +119,8 @@ export class Lab {
     this.panelHost.setAttribute("aria-busy", String(active));
   }
 
+  async cancel(): Promise<void> { await this.runner.cancel(); }
+
   async dispose(): Promise<void> {
     if (this.disposed) return;
     this.disposed = true;

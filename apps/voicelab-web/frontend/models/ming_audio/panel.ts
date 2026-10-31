@@ -1,3 +1,4 @@
+import { hideFields } from "../../conversation/settings.js";
 import { AudioInput } from "../../components/audio-input.js";
 import type { ControlPanel } from "../../components/panel.js";
 import type { Emit, VoiceSession, MingAudioModel } from "../../domain/session.js";
@@ -32,6 +33,8 @@ export class MingAudioPanel implements ControlPanel {
     this.advanced.element.append(this.history.element);
     this.form.note("Spoken dialogue and TTS produce buffered speech. ASR transcribes audio; audio understanding and text return text only. A reference voice needs at least 0.4 seconds.");
   }
+  prepareConversation(): void { hideFields(this.element, ["Task"]); this.audio.element.hidden = true; this.history.element.hidden = true; }
+  async conversationConfig(): Promise<object> { return { task: "spoken_dialogue", prompt: this.prompt(), voice: this.voice(), max_tokens: this.tokens(), seed: this.seed(), max_decode_steps: this.decodeSteps(), cfg_scale: this.cfg(), sigma: this.sigma(), temperature: this.temperature(), flow_steps: this.flowSteps(), reference_audio: await this.reference(), reference_text: this.referenceText(), trim_reference_silence: this.trimReference(), thinking: this.thinking(), system_prompt: this.system() }; }
   createSession(emit: Emit): VoiceSession {
     const file = this.audio.read();
     const task = this.task();

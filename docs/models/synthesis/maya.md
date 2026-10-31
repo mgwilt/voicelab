@@ -1,5 +1,7 @@
 # Maya 2 Native
 
+Open **Direct run** for the synthesis workflows below. Use [Conversation](../../usage/conversations.md) for ongoing voice calls.
+
 Maya 2 Native generates multilingual speech with named or cloned voices.
 Voice Lab runs the native MLX-Audio model locally and streams 24 kHz mono audio.
 

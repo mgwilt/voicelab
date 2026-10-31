@@ -1,5 +1,7 @@
 # MiniCPM-o 4.5
 
+For ongoing calls, use [Conversation](../../usage/conversations.md). The direct workflows below remain available in **Direct run**.
+
 Run speech conversations with the local `llama.cpp-omni` runtime on Apple Silicon.
 The lab supports live duplex sessions and recorded-audio or text questions with spoken answers.
 

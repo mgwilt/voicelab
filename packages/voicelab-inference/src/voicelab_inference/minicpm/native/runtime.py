@@ -215,10 +215,21 @@ class MiniCPMNative:
         self,
         emit: Callable[[Event], None],
         cancelled: Callable[[], bool] = never_cancel,
+        *,
+        request: Request | None = None,
     ) -> None:
-        request = self._request
-        if self._socket is None or request is None or request.mode != "turn_based":
+        request = request if request is not None else self._request
+        if (
+            self._socket is None
+            or self._request is None
+            or self._request.mode != "turn_based"
+            or request is None
+            or request.mode != "turn_based"
+        ):
             raise RuntimeError("MiniCPM turn-based session is not active.")
+        self._request = request
+        self._input = self._output = self._elapsed = 0.0
+        self._first = self._completed = None
         content: list[dict[str, str]] = []
         if request.text:
             content.append({"type": "text", "text": request.text})

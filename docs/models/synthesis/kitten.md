@@ -1,5 +1,7 @@
 # KittenTTS 2
 
+Open **Direct run** for the synthesis workflows below. Use [Conversation](../../usage/conversations.md) for ongoing voice calls.
+
 KittenTTS 2 generates expressive speech with built-in or cloned voices.
 Voice Lab uses local KittenML 0.9.7 and emits mono 24 kHz audio.
 
