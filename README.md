@@ -1,6 +1,7 @@
 # Voice Lab
 
 Test voice AI models. Compare audio quality, latency, and real-time factor (RTF) across runtimes and devices.
+Use the shared mobile-friendly website or save experiments from the command line.
 
 Local lab features: ☑ exposed · ☐ not exposed. Unchecked features can still exist in the upstream model.
 TTS = text to speech. S2S = speech to speech.
@@ -20,6 +21,8 @@ TTS = text to speech. S2S = speech to speech.
 | [KittenTTS 2](docs/models/synthesis/kitten.md) | ☑ | ☐ | ☐ | ☑ | ☑ | ☑ | ☑ |
 | [PersonaPlex 7B](docs/models/conversation/personaplex.md) | ☐ | ☑ | ☑ | ☑ | ☑ | ☐ | ☑ |
 | [Ming 3.0 Audio Tiny](docs/models/conversation/ming_audio.md) | ☑ | ☑ | ☐ | ☐ | ☑ | ☐ | ☑ |
+| [Qwen3 Omni](docs/models/conversation/qwen_omni.md) | ☑ | ☑ | ☐ | ☑ | ☐ | ☐ | ☑ |
+| [MiniCPM-o 4.5](docs/models/conversation/minicpm.md) | ☑ | ☑ | ☑ | ☑ | ☐ | ☐ | ☐ |
 
 ## Start
 
@@ -42,7 +45,7 @@ For mobile access, read the [usage guide](docs/usage/README.md).
 
 | Option | Applies to | Use |
 | --- | --- | --- |
-| `--text` | Speech synthesis | Supply the text to speak. |
+| `--text` | Supported text workflows | Supply text for speech or a spoken answer. |
 | `--input` | Audio workflows | Supply a WAV in the model’s required format. |
 | `--device` | PyTorch workflows | Select a supported device. |
 | `--runtime` | `run` | Select a runtime listed by `models`. |
@@ -69,5 +72,7 @@ Coding agents start at [the documentation index](docs/README.md).
 | [KittenTTS 2](docs/models/synthesis/kitten.md) | [Stellon Labs Community](https://huggingface.co/KittenML/kitten-tts-2/blob/main/LICENSE.md) |
 | [PersonaPlex 7B](docs/models/conversation/personaplex.md) | [NVIDIA Open Model](https://huggingface.co/nvidia/personaplex-7b-v1) |
 | [Ming 3.0 Audio Tiny](docs/models/conversation/ming_audio.md) | [MIT](https://huggingface.co/inclusionAI/Ming-3.0-audio-tiny) |
+| [Qwen3 Omni](docs/models/conversation/qwen_omni.md) | [Apache-2.0](https://huggingface.co/Qwen/Qwen3-Omni-30B-A3B-Instruct) |
+| [MiniCPM-o 4.5](docs/models/conversation/minicpm.md) | [Apache-2.0](https://huggingface.co/openbmb/MiniCPM-o-4_5) |
 
 Code, codecs, and other components can have separate terms.

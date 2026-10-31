@@ -17,7 +17,7 @@ Read the model guide for the exact timing boundary.
 
 First PCM measures when the runtime produces its first decoded audio chunk.
 Frame latency measures processing time for a model frame.
-PersonaPlex reports compute time to first PCM. It excludes waits between live input frames.
+Some live workflows report compute time to first PCM. This excludes waits between input frames.
 Neither value includes all network, browser queue, and speaker delay.
 Neither value alone proves conversational turn-taking latency.
 

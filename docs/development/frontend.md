@@ -3,12 +3,22 @@
 One FastAPI application serves all model tests. The frontend uses vanilla TypeScript 7 components.
 Bun installs dependencies, builds browser files, and runs frontend tests.
 
+## Keep the workbench mobile first
+
+Use a compact workbench with clear navigation, tabs, panels, and status.
+Adapt these elements for touch and narrow screens. Keep controls usable with the software keyboard open.
+Do not require hover, horizontal page scrolling, or a desktop sidebar to run an experiment.
+
+The shell owns navigation and run actions. Model panels own typed experiment controls.
+Changing views must preserve control values and active session ownership.
+Keep layout independent of how configuration is edited. Monaco, declarative configuration, and a desktop mode are deferred.
+
 ## Select the owner
 
 Paths below are relative to `apps/voicelab-web`.
 
 - `frontend/domain/`: model types, session events, and run state; no DOM imports.
-- `frontend/components/`: model selection, controls, measurements, and transcripts.
+- `frontend/components/`: model selection, workbench navigation, run controls, measurements, and transcripts.
 - `frontend/models/`: model forms, request construction, and explicit panel selection.
 - `frontend/models/synthesis/`: shared synthesis session and response decoding.
 - `frontend/transport/`: catalog decoding and WebSocket lifetime.
@@ -49,9 +59,9 @@ Keep input RTF and output RTF labels distinct.
 ## Add a model panel
 
 1. Add typed model requests and a concrete runtime in the existing packages.
-2. Construct the runtime in `voicelab_web.app`.
+2. Construct the runtime in its application session or backend owner.
 3. Add the model descriptor to the server catalog.
-4. Extend the frontend model union, catalog decoder, and panel selection.
+4. Register its server route. Extend the frontend model union, catalog decoder, and panel selection.
 5. Add controls only for that model's distinct inputs.
 6. Test decoding, cancellation, resource cleanup, and real device behavior.
 
