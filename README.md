@@ -21,10 +21,6 @@ TTS = text to speech. S2S = speech to speech.
 | [PersonaPlex 7B](docs/models/conversation/personaplex.md) | ☐ | ☑ | ☑ | ☑ | ☑ | ☐ | ☑ |
 | [Ming 3.0 Audio Tiny](docs/models/conversation/ming_audio.md) | ☑ | ☑ | ☐ | ☐ | ☑ | ☐ | ☑ |
 
-Prompt means voice or style instructions, including expression tags. Clone means reference-audio conditioning; similarity needs separate evaluation.
-Streamed audio includes sentence chunks; the model guides explain delivery and timing limits.
-All inference runs locally. Some checkpoints require access approval on Hugging Face; see the model guides.
-
 ## Start
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and [Bun](https://bun.sh/docs/installation).
