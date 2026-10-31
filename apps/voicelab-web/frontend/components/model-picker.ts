@@ -1,4 +1,4 @@
-import type { Model, ModelId } from "../domain/experiment.js";
+import type { Model, ModelId } from "../domain/session.js";
 import { element, labeled } from "./dom.js";
 
 const workflowLabels: Record<Model["kind"], string> = {

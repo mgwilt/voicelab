@@ -46,7 +46,7 @@ class Engine:
         if self._model is None:
             self._model = NemotronMLX(MLX_8BIT)
         if should_cancel():
-            raise InterruptedError("Nemotron tool experiment cancelled.")
+            raise InterruptedError("Nemotron tool session cancelled.")
         return self._model.generate_with_tool(
             source, destination, settings, tools, should_cancel
         )

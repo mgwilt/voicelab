@@ -17,7 +17,7 @@ Inference code does not import applications or another model's implementation.
 
 ## Select the owner
 
-- `apps/voicelab`: commands, experiment execution, and reports.
+- `apps/voicelab`: commands, run execution, and reports.
 - `apps/voicelab-web`: one FastAPI website and its frontend.
 - `packages/voicelab-core`: framework-free contracts, audio values, and shared measurements.
 - `packages/voicelab-models`: model identities, constraints, and validated requests.
@@ -28,8 +28,26 @@ Use the same module pattern for each model:
 ```text
 voicelab_models.<model>
 voicelab_inference.<model>.<runtime>
-voicelab.<model>
+voicelab.models.<model>
 ```
+
+The CLI application separates startup, model commands, and shared run support:
+
+```text
+voicelab/
+  launch/             # Startup, command dispatch, and device arguments
+  models/<model>/     # Model commands and run orchestration
+  runs/               # Shared evidence and execution support
+    synthesis/        # Lifecycle for compatible synthesis workflows
+```
+
+Model commands can use shared run support. Shared run support must not import model commands or concrete runtimes.
+Model commands must not import another model's application modules.
+Keep startup dependent on the standard library. It dispatches commands without loading model modules.
+
+Use **run** for an execution whose outputs and status are retained.
+Use **session** for an interactive connection and its resource lifetime.
+Neither term requires a benchmark or evaluation workflow.
 
 Examples of inference modules are `nemotron.mlx`, `sesame.torch`, and `breeze.mlx`.
 Keep model identity separate from runtime and device support.
@@ -41,7 +59,7 @@ Do not create placeholder CUDA, TPU, or ANE directories.
 
 ## Compose workflows
 
-Applications select and construct runtime objects. Pass those objects to experiment logic through narrow protocols.
+Applications select and construct runtime objects. Pass those objects to run logic through narrow protocols.
 Keep framework details inside the runtime that uses them.
 Separate vendor adaptation from custom sampling, decoding, and kernels.
 

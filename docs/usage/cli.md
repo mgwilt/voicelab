@@ -13,7 +13,7 @@ Run commands from the repository root. Install uv and Bun before the first launc
 The first command starts the shared website. The other commands show available models and command help.
 Root help and model listing do not prepare the Python environment.
 
-## Save an experiment
+## Save a run
 
 Use this command form:
 

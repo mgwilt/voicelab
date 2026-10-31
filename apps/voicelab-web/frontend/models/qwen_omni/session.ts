@@ -1,10 +1,10 @@
 import { Playback } from "../../audio/playback.js";
-import type { Emit, ExperimentSession, Outcome, QwenOmniModel } from "../../domain/experiment.js";
-import { unreachable } from "../../domain/experiment.js";
+import type { Emit, VoiceSession, Outcome, QwenOmniModel } from "../../domain/session.js";
+import { unreachable } from "../../domain/session.js";
 import { streamSession } from "../../transport/socket.js";
 import { decode } from "./protocol.js";
 import type { Request } from "./request.js";
-export class QwenOmniSession implements ExperimentSession {
+export class QwenOmniSession implements VoiceSession {
   private readonly playback = new Playback();
   private readonly cancellation = new AbortController();
   constructor(private readonly model: QwenOmniModel, private readonly read: () => Promise<Request>, private readonly emit: Emit) {}

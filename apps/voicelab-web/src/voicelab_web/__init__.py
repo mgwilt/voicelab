@@ -1,1 +1,1 @@
-"""Local FastAPI interface for the Nemotron duplex experiment."""
+"""Shared local voice sessions through FastAPI."""

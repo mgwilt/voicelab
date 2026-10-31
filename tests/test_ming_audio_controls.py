@@ -1,4 +1,4 @@
-"""Validate experimental controls before a local model can load."""
+"""Validate generation controls before a local model can load."""
 
 import unittest
 from pathlib import Path
@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from pydantic import ValidationError
 
-from voicelab.ming_audio.experiments import Report, run_experiment
+from voicelab.models.ming_audio.runs import Report, execute_run
 from voicelab_inference.ming_audio.mlx.contracts import Response
 from voicelab_models.ming_audio.model import Request
 
@@ -90,11 +90,11 @@ class MingAudioControlTests(unittest.TestCase):
             output = Path(directory) / "run"
             with (
                 patch(
-                    "voicelab.ming_audio.experiments.MingAudioMLX", return_value=runtime
+                    "voicelab.models.ming_audio.runs.MingAudioMLX", return_value=runtime
                 ),
                 self.assertRaisesRegex(RuntimeError, "sampling failed"),
             ):
-                run_experiment(request, output)
+                execute_run(request, output)
             report = Report.model_validate_json((output / "run.json").read_bytes())
         self.assertTrue(runtime.closed)
         self.assertEqual(report.status, "failed")

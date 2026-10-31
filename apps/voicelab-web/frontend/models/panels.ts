@@ -1,6 +1,6 @@
 import type { ControlPanel } from "../components/panel.js";
-import type { Model } from "../domain/experiment.js";
-import { unreachable } from "../domain/experiment.js";
+import type { Model } from "../domain/session.js";
+import { unreachable } from "../domain/session.js";
 import { BreezePanel } from "./breeze/panel.js";
 import { DuplexPanel } from "./nemotron/panel.js";
 import { SynthesisPanel } from "./sesame/panel.js";

@@ -1,7 +1,7 @@
 import { Microphone } from "../../audio/microphone.js";
 import { Playback } from "../../audio/playback.js";
-import type { PersonaPlexModel, Emit, ExperimentSession, Outcome } from "../../domain/experiment.js";
-import { unreachable } from "../../domain/experiment.js";
+import type { PersonaPlexModel, Emit, VoiceSession, Outcome } from "../../domain/session.js";
+import { unreachable } from "../../domain/session.js";
 import { streamSession, type SessionSender } from "../../transport/socket.js";
 import type { ReferenceAudio } from "../synthesis/reference.js";
 import { decode } from "../conversation/protocol.js";
@@ -13,7 +13,7 @@ export interface StartRequest {
   readonly text_top_k: number; readonly audio_top_k: number;
 }
 
-export class PersonaPlexSession implements ExperimentSession {
+export class PersonaPlexSession implements VoiceSession {
   private readonly playback = new Playback();
   private readonly microphone = new Microphone();
   private readonly cancellation = new AbortController();

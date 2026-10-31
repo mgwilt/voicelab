@@ -37,7 +37,7 @@ MLX GPU execution does not prove Apple Neural Engine (ANE) support.
 
 ## Keep evidence
 
-Create a fresh output directory for each experiment. Do not overwrite a run.
+Create a fresh output directory for each run. Do not overwrite a run.
 Retain these details when the workflow supplies them:
 
 - Model and converted checkpoint identities, with immutable revisions.

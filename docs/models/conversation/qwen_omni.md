@@ -10,7 +10,7 @@ Start the lab with `./voicelab`. Select **Qwen3 Omni**.
 Record or upload a question. Select Ethan, Chelsie, or Aiden, then start the response.
 You can also enter text without an audio recording.
 
-For a retained experiment:
+For a retained run:
 
 ```sh
 ./voicelab run qwen-omni --input question.wav --prompt 'Answer briefly.' --output artifacts/runs/qwen-001
@@ -26,7 +26,7 @@ Reference audio supplies conversation input. It does not clone the speaker's voi
 
 Use the prompt for questions, transcription instructions, language requests, or speaking instructions.
 Instruction following can vary. A transcription request is not a separate forced-transcription decoder.
-Keep the default system instructions unless your experiment requires a change.
+Keep the default system instructions unless your run requires a change.
 
 The website exposes all controls under generation settings.
 Use `--text-only` for text responses, or `--buffered` to deliver speech after decoding.

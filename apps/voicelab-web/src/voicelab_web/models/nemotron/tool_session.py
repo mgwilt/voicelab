@@ -1,4 +1,4 @@
-"""Same-site offline Nemotron tool experiment; no external tool execution."""
+"""Same-site offline Nemotron tool session; no external tool execution."""
 
 import asyncio
 import contextlib
@@ -28,7 +28,7 @@ async def serve_tool_session(socket: WebSocket, engine: Engine) -> None:
     try:
         raw = await asyncio.wait_for(socket.receive_text(), 30)
         if len(raw) > 4 * 1024 * 1024:
-            raise ValueError("Tool experiment request exceeds 4 MiB.")
+            raise ValueError("Tool session request exceeds 4 MiB.")
         request = ToolStart.model_validate_json(raw)
         await socket.send_json({"type": "loading"})
 
@@ -114,16 +114,16 @@ async def serve_tool_session(socket: WebSocket, engine: Engine) -> None:
     except TimeoutError:
         with contextlib.suppress(WebSocketDisconnect, RuntimeError):
             await socket.send_json(
-                {"type": "error", "message": "Tool experiment timed out."}
+                {"type": "error", "message": "Tool session timed out."}
             )
     except (ValueError, RuntimeError) as exc:
         with contextlib.suppress(WebSocketDisconnect, RuntimeError):
             await socket.send_json({"type": "error", "message": str(exc)})
     except Exception:
-        logger.exception("Nemotron tool experiment failed")
+        logger.exception("Nemotron tool session failed")
         with contextlib.suppress(WebSocketDisconnect, RuntimeError):
             await socket.send_json(
-                {"type": "error", "message": "Nemotron tool experiment failed."}
+                {"type": "error", "message": "Nemotron tool session failed."}
             )
     finally:
         cancelled.set()

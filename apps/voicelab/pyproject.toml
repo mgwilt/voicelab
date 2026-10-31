@@ -1,27 +1,27 @@
 [project]
 name = "voicelab"
 version = "0.1.0"
-description = "Voice AI model experimentation."
+description = "Voice AI model execution and evaluation."
 requires-python = ">=3.14,<3.15"
 dependencies = ["voicelab-core", "voicelab-models", "voicelab-inference"]
 
 [project.scripts]
 voicelab = "voicelab.launch.cli:main"
-voicelab-breeze = "voicelab.breeze.cli:main"
-voicelab-sesame = "voicelab.sesame.cli:main"
-voicelab-nemotron = "voicelab.nemotron.cli:main"
-voicelab-phonon = "voicelab.phonon.cli:main"
-voicelab-kokoro = "voicelab.kokoro.cli:main"
-voicelab-audio8 = "voicelab.audio8.cli:main"
-voicelab-ming-tts = "voicelab.ming_tts.cli:main"
-voicelab-drama = "voicelab.drama.cli:main"
-voicelab-maya = "voicelab.maya.cli:main"
-voicelab-omnivoice = "voicelab.omnivoice.cli:main"
-voicelab-kitten = "voicelab.kitten.cli:main"
-voicelab-personaplex = "voicelab.personaplex.cli:main"
-voicelab-ming-audio = "voicelab.ming_audio.cli:main"
-voicelab-qwen-omni = "voicelab.qwen_omni.cli:main"
-voicelab-minicpm = "voicelab.minicpm.cli:main"
+voicelab-breeze = "voicelab.models.breeze.cli:main"
+voicelab-sesame = "voicelab.models.sesame.cli:main"
+voicelab-nemotron = "voicelab.models.nemotron.cli:main"
+voicelab-phonon = "voicelab.models.phonon.cli:main"
+voicelab-kokoro = "voicelab.models.kokoro.cli:main"
+voicelab-audio8 = "voicelab.models.audio8.cli:main"
+voicelab-ming-tts = "voicelab.models.ming_tts.cli:main"
+voicelab-drama = "voicelab.models.drama.cli:main"
+voicelab-maya = "voicelab.models.maya.cli:main"
+voicelab-omnivoice = "voicelab.models.omnivoice.cli:main"
+voicelab-kitten = "voicelab.models.kitten.cli:main"
+voicelab-personaplex = "voicelab.models.personaplex.cli:main"
+voicelab-ming-audio = "voicelab.models.ming_audio.cli:main"
+voicelab-qwen-omni = "voicelab.models.qwen_omni.cli:main"
+voicelab-minicpm = "voicelab.models.minicpm.cli:main"
 
 [tool.uv.sources]
 voicelab-core = { workspace = true }

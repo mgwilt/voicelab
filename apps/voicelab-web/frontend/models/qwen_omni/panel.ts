@@ -1,6 +1,6 @@
 import { AudioInput } from "../../components/audio-input.js";
 import type { ControlPanel } from "../../components/panel.js";
-import type { Emit, ExperimentSession, QwenOmniModel } from "../../domain/experiment.js";
+import type { Emit, VoiceSession, QwenOmniModel } from "../../domain/session.js";
 import { SpeechForm } from "../synthesis/form.js";
 import { HistoryInput } from "./history.js";
 import { inputAudio } from "./request.js";
@@ -33,7 +33,7 @@ export class QwenOmniPanel implements ControlPanel {
     this.context.element.append(this.history.element);
     this.form.note("Record or upload a question, or use text. Qwen finishes its text response before generating speech. This is turn-based conversation.");
   }
-  createSession(emit: Emit): ExperimentSession {
+  createSession(emit: Emit): VoiceSession {
     const file = this.audio.read();
     const values = { prompt: this.prompt(), system_prompt: this.system(), speaker: this.speaker(), return_audio: this.speech(), stream_audio: this.streaming(), seed: this.seed(), max_tokens: this.tokens(), temperature: this.temperature(), top_p: this.topP(), top_k: this.topK(), talker_max_tokens: this.speechTokens(), talker_temperature: this.speechTemperature(), talker_top_p: this.speechP(), talker_top_k: this.speechK(), talker_repetition_penalty: this.repetition(), chunk_frames: this.chunk() };
     return new QwenOmniSession(this.model, async () => ({ ...values, audio: await inputAudio(file), history: await this.history.read() }), emit);

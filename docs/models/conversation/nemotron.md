@@ -1,6 +1,6 @@
 # Nemotron VoiceChat
 
-NemotronLabs VoiceChat 11B supports duplex voice conversation and offline audio experiments.
+NemotronLabs VoiceChat 11B supports duplex voice conversation and offline audio runs.
 The lab uses a community MLX runtime on Apple Silicon.
 Input is mono 16 kHz PCM16 audio. Output is mono 22.05 kHz PCM16 audio.
 

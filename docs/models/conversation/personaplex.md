@@ -30,7 +30,7 @@ The runtime resamples it to 24 kHz and normalizes loudness to -24 LUFS, followin
 It conditions assistant audio codebooks while supplying the fixed user-side sine tokens.
 The browser accepts the same reference recording. Reports retain its hash, not its audio payload.
 
-Use `--seed`, `--text-temperature`, `--audio-temperature`, `--text-top-k`, and `--audio-top-k` for sampling experiments.
+Use `--seed`, `--text-temperature`, `--audio-temperature`, `--text-top-k`, and `--audio-top-k` for sampling runs.
 Temperature zero selects greedy decoding. The website groups these controls under Sampling controls.
 
 ## Read the measurements

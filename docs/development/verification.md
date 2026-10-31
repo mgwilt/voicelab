@@ -21,7 +21,7 @@ make check-breeze
 
 ## Select evidence
 
-Use small injected fakes for request validation, experiment control, and resource cleanup.
+Use small injected fakes for request validation, run control, and resource cleanup.
 Keep root contract tests independent of weights, network access, microphones, and accelerators.
 Keep runtime-specific tests with their runtime owner.
 Keep shared integration and dependency tests under `tests/`.
@@ -32,7 +32,7 @@ A fake runtime does not prove inference. An import does not prove model executio
 Offline output does not prove streaming behavior or performance.
 For model integrations, also follow [model acceptance](model-acceptance.md).
 
-Run real model experiments separately. Retain their evidence under ignored `artifacts/`.
+Run real model runs separately. Retain their evidence under ignored `artifacts/`.
 Use the [measurement procedure](../usage/measurements.md) for performance claims.
 
 ## Verify the website

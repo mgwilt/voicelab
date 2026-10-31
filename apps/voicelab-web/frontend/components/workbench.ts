@@ -13,7 +13,7 @@ export class Workbench {
     const id = `workbench-${++nextId}`;
     const tabs = element("div", "workbench-tabs");
     tabs.setAttribute("role", "tablist");
-    tabs.setAttribute("aria-label", "Experiment views");
+    tabs.setAttribute("aria-label", "Session views");
     const entries: readonly [WorkbenchView, string, HTMLElement][] = [
       ["controls", "Controls", controls], ["output", "Output", output],
     ];

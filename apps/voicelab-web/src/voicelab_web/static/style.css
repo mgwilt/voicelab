@@ -44,8 +44,8 @@ main { max-inline-size: 54rem; margin-inline: auto; }
 .tag { grid-column: 1; font-size: .75rem; color: var(--muted); }
 .model-backend { grid-column: 2; grid-row: 1 / 3; align-self: center; font: .75rem/1.5 var(--mono); color: var(--muted); overflow-wrap: anywhere; max-inline-size: 12ch; }
 .unavailable-reason { font-size: .75rem; color: var(--muted); margin: 0; padding: 0 .75rem .65rem 1rem; overflow-wrap: anywhere; }
-.experiment-header { padding: 1.25rem max(1rem, env(safe-area-inset-right)) 1rem max(1rem, env(safe-area-inset-left)); background: var(--surface); display: flex; align-items: baseline; flex-wrap: wrap; gap: .35rem .75rem; }
-.experiment-title { font-size: 1.125rem; font-weight: 600; line-height: 1.4; margin: 0; overflow-wrap: anywhere; }
+.session-header { padding: 1.25rem max(1rem, env(safe-area-inset-right)) 1rem max(1rem, env(safe-area-inset-left)); background: var(--surface); display: flex; align-items: baseline; flex-wrap: wrap; gap: .35rem .75rem; }
+.session-title { font-size: 1.125rem; font-weight: 600; line-height: 1.4; margin: 0; overflow-wrap: anywhere; }
 .runtime-label { color: var(--accent); font: .75rem/1.5 var(--mono); overflow-wrap: anywhere; }
 .model-description { flex-basis: 100%; font-size: .8125rem; color: var(--muted); margin: 0; overflow-wrap: anywhere; }
 .workbench { flex: 1; background: var(--surface); min-inline-size: 0; }

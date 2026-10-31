@@ -11,7 +11,7 @@ import numpy as np
 from numpy.typing import NDArray
 from pydantic import ValidationError
 
-from voicelab.qwen_omni.experiments import Report, run_experiment
+from voicelab.models.qwen_omni.runs import Report, execute_run
 from voicelab_inference.qwen_omni.mlx.contracts import Completion
 from voicelab_inference.qwen_omni.mlx.runtime import QwenOmniMLX
 from voicelab_models.qwen_omni.model import HistoryTurn, Request
@@ -116,7 +116,7 @@ class QwenOmniTests(unittest.TestCase):
             with TemporaryDirectory() as directory:
                 output = Path(directory) / "run"
                 with self.assertRaises(RuntimeError):
-                    run_experiment(
+                    execute_run(
                         Request(seed=72),
                         output,
                         QwenOmniMLX(factory=lambda value=backend: value),

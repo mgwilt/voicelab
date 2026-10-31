@@ -1,6 +1,6 @@
 import { Playback } from "../../audio/playback.js";
-import type { Emit, ExperimentSession, MingAudioModel, Outcome } from "../../domain/experiment.js";
-import { unreachable } from "../../domain/experiment.js";
+import type { Emit, VoiceSession, MingAudioModel, Outcome } from "../../domain/session.js";
+import { unreachable } from "../../domain/session.js";
 import { streamSession } from "../../transport/socket.js";
 import type { ReferenceAudio } from "../synthesis/reference.js";
 import type { HistoryTurn } from "./history.js";
@@ -16,7 +16,7 @@ export interface Question {
   readonly thinking: boolean; readonly system_prompt: string | null; readonly history: () => Promise<readonly HistoryTurn[]>;
 }
 
-export class MingAudioSession implements ExperimentSession {
+export class MingAudioSession implements VoiceSession {
   private readonly playback = new Playback();
   private readonly cancellation = new AbortController();
   constructor(private readonly model: MingAudioModel, private readonly question: Question, private readonly emit: Emit) {}

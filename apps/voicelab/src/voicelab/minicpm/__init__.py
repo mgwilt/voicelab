@@ -1,1 +1,0 @@
-"""MiniCPM voice experiments."""

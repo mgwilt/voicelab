@@ -1,4 +1,4 @@
-import type { Outcome } from "../domain/experiment.js";
+import type { Outcome } from "../domain/session.js";
 
 export interface SessionSender {
   send(value: object): void;

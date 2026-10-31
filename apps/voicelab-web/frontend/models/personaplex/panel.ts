@@ -1,5 +1,5 @@
 import type { ControlPanel } from "../../components/panel.js";
-import type { Emit, ExperimentSession, PersonaPlexModel } from "../../domain/experiment.js";
+import type { Emit, VoiceSession, PersonaPlexModel } from "../../domain/session.js";
 import { SpeechForm } from "../synthesis/form.js";
 import { PersonaPlexSession } from "./session.js";
 
@@ -18,7 +18,7 @@ export class PersonaPlexPanel implements ControlPanel {
   constructor(private readonly model: PersonaPlexModel) {
     this.form.note("Your microphone stays live while the model speaks. Inference runs locally; timing measures model and codec processing.");
   }
-  createSession(emit: Emit): ExperimentSession { return new PersonaPlexSession(this.model, async () => ({ type: "start", prompt: this.prompt(), voice: this.voice(), reference_audio: await this.reference(), seed: this.seed(), text_temperature: this.textTemperature(), audio_temperature: this.audioTemperature(), text_top_k: this.textTopK(), audio_top_k: this.audioTopK() }), emit); }
+  createSession(emit: Emit): VoiceSession { return new PersonaPlexSession(this.model, async () => ({ type: "start", prompt: this.prompt(), voice: this.voice(), reference_audio: await this.reference(), seed: this.seed(), text_temperature: this.textTemperature(), audio_temperature: this.audioTemperature(), text_top_k: this.textTopK(), audio_top_k: this.audioTopK() }), emit); }
   setDisabled(disabled: boolean): void { this.form.setDisabled(disabled); }
   dispose(): void { this.element.remove(); }
 }

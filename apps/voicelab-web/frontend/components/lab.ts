@@ -1,4 +1,4 @@
-import type { Model } from "../domain/experiment.js";
+import type { Model } from "../domain/session.js";
 import { SessionRunner, type RunState } from "../domain/runner.js";
 import { element } from "./dom.js";
 import { Measurements } from "./measurements.js";
@@ -11,11 +11,11 @@ import { Workbench } from "./workbench.js";
 export class Lab {
   readonly element = element("div", "lab");
   private readonly panelHost = element("div", "panel-host");
-  private readonly title = element("h2", "experiment-title", "Choose a model");
+  private readonly title = element("h2", "session-title", "Choose a model");
   private readonly description = element("p", "model-description");
   private readonly backend = element("span", "runtime-label");
   private readonly phase = element("span", "session-phase", "Ready");
-  private readonly start = element("button", "button-primary", "Start test");
+  private readonly start = element("button", "button-primary", "Start session");
   private readonly stop = element("button", "button-secondary", "Stop");
   private readonly status = element("p", "session-status", "Ready");
   private readonly measurements = new Measurements();
@@ -40,7 +40,7 @@ export class Lab {
       if (event.type === "measurement") this.measurements.update(event.value);
       else if (event.type === "transcript") this.transcript.update(event.speaker, event.text);
     });
-    const heading = element("header", "experiment-header");
+    const heading = element("header", "session-header");
     heading.append(this.title, this.backend, this.description);
     const controls = element("section", "workbench-content controls-view");
     controls.append(this.panelHost);
@@ -96,11 +96,11 @@ export class Lab {
     this.backend.textContent = model.backend;
     this.workbench.show("controls");
     this.picker.select(model.id);
-    this.start.textContent = model.kind === "synthesis" ? "Generate speech" : "Start test";
+    this.start.textContent = model.kind === "synthesis" ? "Generate speech" : "Start session";
     this.measurements.reset(); this.transcript.reset();
     this.transcript.show(model.kind !== "synthesis");
     this.switching = false;
-    this.renderState({ phase: "idle", message: "Ready. The first test loads the model.", error: false });
+    this.renderState({ phase: "idle", message: "Ready. The first session loads the model.", error: false });
   }
 
   private renderState(state: RunState): void {

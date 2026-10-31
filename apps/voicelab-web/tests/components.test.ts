@@ -3,7 +3,7 @@ import { Lab } from "../frontend/components/lab.js";
 import { Measurements } from "../frontend/components/measurements.js";
 import { ModelPicker } from "../frontend/components/model-picker.js";
 import type { ControlPanel } from "../frontend/components/panel.js";
-import type { Emit, Model, Outcome } from "../frontend/domain/experiment.js";
+import type { Emit, Model, Outcome } from "../frontend/domain/session.js";
 
 const models: readonly Model[] = [
   { id: "nemotron", kind: "duplex", label: "Nemotron", description: "Duplex", backend: "MLX", available: true, reason: null,
@@ -60,7 +60,7 @@ test("switching a running model cancels it before disposing its panel", async ()
   const lab = new Lab(models, create);
   await Promise.resolve();
   await Promise.resolve();
-  button(lab.element, "Start test").click();
+  button(lab.element, "Start session").click();
   const next = models[1];
   if (next === undefined) throw new Error("Missing model");
   await lab.select(next);
@@ -134,13 +134,13 @@ test("workbench views preserve edits and active sessions while exposing output a
   expect(lab.element.querySelector(".controls-view")?.hasAttribute("hidden")).toBe(true);
   button(lab.element, "Controls").click();
   expect(input.value).toBe("Keep this prompt");
-  button(lab.element, "Start test").click();
+  button(lab.element, "Start session").click();
   emit({ type: "measurement", value: { basis: "input", rtf: .75, audioSeconds: 4, latencyMs: 200, latencyLabel: "Frame p95", backlogSeconds: .1 } });
   emit({ type: "transcript", speaker: "assistant", text: "A live reply" });
   button(lab.element, "View output: Input RTF 0.75×").click();
   expect(lab.element.querySelector(".output-view")?.hasAttribute("hidden")).toBe(false);
   expect(lab.element.querySelector(".transcript")?.textContent).toContain("A live reply");
-  expect(button(lab.element, "Start test").disabled).toBe(true);
+  expect(button(lab.element, "Start session").disabled).toBe(true);
   button(lab.element, "Stop").click();
   expect(stopCount).toBe(1);
   expect(disposedCount).toBe(0);

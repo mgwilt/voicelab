@@ -1,4 +1,4 @@
-import type { Model } from "../domain/experiment.js";
+import type { Model } from "../domain/session.js";
 import { boolean, record, text } from "./decode.js";
 
 export function decodeCatalog(value: unknown): readonly Model[] {

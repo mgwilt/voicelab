@@ -9,7 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
-from voicelab.synthesis.experiments import (
+from voicelab.runs.synthesis.execution import (
     Audio,
     AuxiliaryCheckpoint,
     ModelEvidence,

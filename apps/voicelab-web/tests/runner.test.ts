@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
-import type { Emit, ExperimentSession, Outcome } from "../frontend/domain/experiment.js";
+import type { Emit, VoiceSession, Outcome } from "../frontend/domain/session.js";
 import { SessionRunner, type RunState } from "../frontend/domain/runner.js";
 
-class DeferredSession implements ExperimentSession {
+class DeferredSession implements VoiceSession {
   resolve: ((outcome: Outcome) => void) | null = null;
   stopped = false;
   async run(signal: AbortSignal): Promise<Outcome> {

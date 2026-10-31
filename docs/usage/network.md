@@ -26,7 +26,7 @@ Create a new certificate if that address changes.
 
 1. Start the server with `./voicelab`.
 2. Open `https://<inference-host>:8443` on a device on the same network.
-3. Allow microphone access if the experiment needs it.
+3. Allow microphone access if the run needs it.
 
 No router forwarding or public deployment is required.
 The lab has no account system. Other devices on the LAN can access a server that listens on the network.

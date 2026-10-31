@@ -45,7 +45,8 @@ Add a page only when it serves a distinct task or reference need.
 - **Device:** the hardware target that a runtime uses.
 - **Package:** an installable workspace distribution.
 - **Module:** a Python source unit within a package.
-- **Run:** one experiment whose outputs and status are retained.
+- **Run:** one execution whose outputs and status are retained.
+- **Session:** an interactive connection and the resources it owns.
 
 Keep API names such as `SynthesisBackend` unchanged, even when prose uses a different general term.
 

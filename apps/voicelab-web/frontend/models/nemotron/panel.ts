@@ -1,6 +1,6 @@
 import { element, integerInput, labeled, readInteger } from "../../components/dom.js";
 import type { ControlPanel } from "../../components/panel.js";
-import type { DuplexModel, Emit, ExperimentSession } from "../../domain/experiment.js";
+import type { DuplexModel, Emit, VoiceSession } from "../../domain/session.js";
 import { ToolControls } from "./tool_controls.js";
 import { ToolSession } from "./tool_session.js";
 import { DuplexSession } from "./session.js";
@@ -28,7 +28,7 @@ export class DuplexPanel implements ControlPanel {
       labeled("Seed", this.seed, "Repeat a seed to hold sampling settings constant."),
       this.liveNote, this.tools.element);
   }
-  createSession(emit: Emit): ExperimentSession {
+  createSession(emit: Emit): VoiceSession {
     if ([...this.prompt.value].some(character => character.codePointAt(0) === undefined || (character.codePointAt(0) ?? 0) > 127)) {
       throw new Error("This model requires an ASCII prompt.");
     }

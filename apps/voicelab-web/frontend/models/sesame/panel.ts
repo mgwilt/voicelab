@@ -1,4 +1,4 @@
-import type { SesameModel } from "../../domain/experiment.js";
+import type { SesameModel } from "../../domain/session.js";
 import { SpeechPanel } from "../synthesis/form.js";
 import type { ContextSegment, SynthesisRequest } from "./request.js";
 

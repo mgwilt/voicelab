@@ -1,4 +1,4 @@
-import type { Measurement } from "../domain/experiment.js";
+import type { Measurement } from "../domain/session.js";
 import { element } from "./dom.js";
 
 export class Measurements {

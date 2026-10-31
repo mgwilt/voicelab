@@ -1,6 +1,6 @@
 import { Playback } from "../../audio/playback.js";
-import type { Emit, ExperimentSession, Outcome } from "../../domain/experiment.js";
-import { unreachable } from "../../domain/experiment.js";
+import type { Emit, VoiceSession, Outcome } from "../../domain/session.js";
+import { unreachable } from "../../domain/session.js";
 import { streamSession } from "../../transport/socket.js";
 import { decodeTool } from "./tool_protocol.js";
 
@@ -8,7 +8,7 @@ export interface ToolQuestion {
   readonly file: File; readonly prompt: string; readonly seed: number;
   readonly trailingSilence: number; readonly tools: unknown; readonly response: unknown;
 }
-export class ToolSession implements ExperimentSession {
+export class ToolSession implements VoiceSession {
   private readonly playback = new Playback();
   private readonly cancellation = new AbortController();
   constructor(private readonly question: ToolQuestion, private readonly emit: Emit) {}

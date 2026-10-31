@@ -7,9 +7,9 @@ Bun installs dependencies, builds browser files, and runs frontend tests.
 
 Use a compact workbench with clear navigation, tabs, panels, and status.
 Adapt these elements for touch and narrow screens. Keep controls usable with the software keyboard open.
-Do not require hover, horizontal page scrolling, or a desktop sidebar to run an experiment.
+Do not require hover, horizontal page scrolling, or a desktop sidebar to run a run.
 
-The shell owns navigation and run actions. Model panels own typed experiment controls.
+The shell owns navigation and run actions. Model panels own typed run controls.
 Changing views must preserve control values and active session ownership.
 Keep layout independent of how configuration is edited. Monaco, declarative configuration, and a desktop mode are deferred.
 

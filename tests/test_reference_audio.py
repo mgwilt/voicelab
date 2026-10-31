@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import BaseModel, ValidationError
 
-from voicelab.synthesis.evidence import request_evidence
+from voicelab.runs.evidence import request_evidence
 from voicelab_inference.audio import reference_file, reference_pcm
 from voicelab_models.audio import ReferenceAudio
 from voicelab_models.breeze.synthesis import SynthesisRequest

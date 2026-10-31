@@ -7,9 +7,11 @@ The checkout command is `./voicelab`. It starts the shared website when no subco
 
 - `voicelab.launch.cli`: argument routing and explicit model/runtime commands.
 - `voicelab.launch.workspace`: environment preparation, asset builds, and process replacement.
-- `voicelab.<model>.cli`: model-specific arguments and runtime construction.
-- `voicelab.<model>.experiments`: model-specific experiment execution and reports.
-- `voicelab.synthesis`: shared artifact writing and lifecycle for compatible synthesis workflows.
+- `voicelab.launch.devices`: device argument validation without framework imports.
+- `voicelab.models.<model>.cli`: model-specific arguments and runtime construction.
+- `voicelab.models.<model>.runs`: model-specific run execution and reports.
+- `voicelab.runs.synthesis`: shared artifact writing and lifecycle for compatible synthesis workflows.
+- `voicelab.runs.evidence`: request provenance with audio hashes instead of embedded recordings.
 
 Keep the launcher dependent on the standard library only.
 Root help and model listing must not install inference dependencies or load weights.
@@ -34,6 +36,6 @@ The launcher rebuilds frontend assets when sources change or required assets are
 It writes an asset fingerprint only after a successful build.
 A failed preparation step must stop startup.
 
-Keep CLI parsing, experiment policy, and report presentation separate.
-Inject runtime protocols into experiment logic.
+Keep CLI parsing, run policy, and report presentation separate.
+Inject runtime protocols into run logic.
 Retain immutable run directories and failed reports as described in [measurements](../usage/measurements.md).

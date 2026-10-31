@@ -1,4 +1,4 @@
-import type { AddedSynthesisId } from "../frontend/domain/experiment.js";
+import type { AddedSynthesisId } from "../frontend/domain/session.js";
 import { expect, test } from "bun:test";
 import { decode as nemotron } from "../frontend/models/nemotron/protocol.js";
 import { decode as sesame } from "../frontend/models/synthesis/protocol.js";

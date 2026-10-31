@@ -1,4 +1,4 @@
-import type { Measurement } from "../../domain/experiment.js";
+import type { Measurement } from "../../domain/session.js";
 import { finite, nullableNumber, parse, record, text } from "../../transport/decode.js";
 
 export interface StartRequest { readonly type: "start"; readonly prompt: string; readonly seed: number }

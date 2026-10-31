@@ -1,6 +1,6 @@
 import { Playback } from "../../audio/playback.js";
-import type { Emit, ExperimentSession, Outcome, SynthesisModel } from "../../domain/experiment.js";
-import { unreachable } from "../../domain/experiment.js";
+import type { Emit, VoiceSession, Outcome, SynthesisModel } from "../../domain/session.js";
+import { unreachable } from "../../domain/session.js";
 import { streamSession } from "../../transport/socket.js";
 import { decode } from "./protocol.js";
 interface SynthesisInput<Request extends object> {
@@ -8,7 +8,7 @@ interface SynthesisInput<Request extends object> {
   readonly request: Request | (() => Request | Promise<Request>);
 }
 
-export class SynthesisSession<Request extends object> implements ExperimentSession {
+export class SynthesisSession<Request extends object> implements VoiceSession {
   private readonly playback = new Playback();
   private readonly cancellation = new AbortController();
   constructor(private readonly input: SynthesisInput<Request>, private readonly emit: Emit) {}

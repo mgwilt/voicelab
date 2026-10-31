@@ -1,4 +1,4 @@
-import type { BreezeModel } from "../../domain/experiment.js";
+import type { BreezeModel } from "../../domain/session.js";
 import { SpeechPanel } from "../synthesis/form.js";
 import type { SynthesisRequest } from "./request.js";
 

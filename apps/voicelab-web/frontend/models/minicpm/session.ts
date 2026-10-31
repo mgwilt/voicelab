@@ -1,7 +1,7 @@
 import { Microphone } from "../../audio/microphone.js";
 import { Playback } from "../../audio/playback.js";
-import type { Emit, ExperimentSession, MiniCPMModel, Outcome } from "../../domain/experiment.js";
-import { unreachable } from "../../domain/experiment.js";
+import type { Emit, VoiceSession, MiniCPMModel, Outcome } from "../../domain/session.js";
+import { unreachable } from "../../domain/session.js";
 import { streamSession, type SessionSender } from "../../transport/socket.js";
 import type { ReferenceAudio } from "../synthesis/reference.js";
 import { decode, type Mode } from "./protocol.js";
@@ -30,7 +30,7 @@ export class FrameBuffer {
     this.pending = new Uint8Array(0);
   }
 }
-export class MiniCPMSession implements ExperimentSession {
+export class MiniCPMSession implements VoiceSession {
   private readonly playback = new Playback();
   private readonly microphone = new Microphone();
   private readonly frames = new FrameBuffer();

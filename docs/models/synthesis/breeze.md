@@ -70,6 +70,6 @@ Source model: `BreezeBlue/Breeze-TTS-2`, revision
 Converted checkpoint: `mlx-community/Breeze-TTS-2-mlx`, revision
 `3c8829fb7fd335818f085cd2ef49b4100c0e46c8`.
 
-The converted checkpoint has not established numerical or audio-quality parity with the earlier hybrid MPS/int8 experiment.
+The converted checkpoint has not established numerical or audio-quality parity with the earlier hybrid MPS/int8 run.
 Weights retain their [separate model license](https://huggingface.co/BreezeBlue/Breeze-TTS-2/blob/main/LICENSE).
 The repository does not distribute model weights.

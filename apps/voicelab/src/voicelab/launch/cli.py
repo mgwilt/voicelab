@@ -1,4 +1,4 @@
-"""One user-facing command, with explicit model-specific experiment adapters."""
+"""One user-facing command, with explicit model-specific run adapters."""
 
 import argparse
 import subprocess
@@ -51,44 +51,44 @@ def commands() -> tuple[ModelCommand, ...]:
         ),
         ModelCommand(
             "phonon",
-            "Phonon experiments",
+            "Speech synthesis",
             (RuntimeCommand("torch", "voicelab-phonon"),),
         ),
         ModelCommand(
-            "kokoro", "Kokoro experiments", (RuntimeCommand("mlx", "voicelab-kokoro"),)
+            "kokoro", "Speech synthesis", (RuntimeCommand("mlx", "voicelab-kokoro"),)
         ),
         ModelCommand(
-            "audio8", "Audio8 experiments", (RuntimeCommand("mlx", "voicelab-audio8"),)
+            "audio8", "Speech synthesis", (RuntimeCommand("mlx", "voicelab-audio8"),)
         ),
         ModelCommand(
             "ming-tts",
-            "Ming Tts experiments",
+            "Speech synthesis",
             (RuntimeCommand("mlx", "voicelab-ming-tts"),),
         ),
         ModelCommand(
-            "drama", "Drama experiments", (RuntimeCommand("mlx", "voicelab-drama"),)
+            "drama", "Speech synthesis", (RuntimeCommand("mlx", "voicelab-drama"),)
         ),
         ModelCommand(
-            "maya", "Maya experiments", (RuntimeCommand("mlx", "voicelab-maya"),)
+            "maya", "Speech synthesis", (RuntimeCommand("mlx", "voicelab-maya"),)
         ),
         ModelCommand(
             "omnivoice",
-            "Omnivoice experiments",
+            "Speech synthesis",
             (RuntimeCommand("torch", "voicelab-omnivoice"),),
         ),
         ModelCommand(
             "kitten",
-            "Kitten experiments",
+            "Speech synthesis",
             (RuntimeCommand("torch", "voicelab-kitten"),),
         ),
         ModelCommand(
             "personaplex",
-            "Personaplex experiments",
+            "Duplex speech conversation",
             (RuntimeCommand("mlx", "voicelab-personaplex"),),
         ),
         ModelCommand(
             "ming-audio",
-            "Ming Audio experiments",
+            "Recorded speech conversation",
             (RuntimeCommand("mlx", "voicelab-ming-audio"),),
         ),
         ModelCommand(
@@ -107,7 +107,7 @@ def commands() -> tuple[ModelCommand, ...]:
 def parser_for(models: tuple[ModelCommand, ...]) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="voicelab",
-        description="Voice model experiments. Run ./voicelab to start the website.",
+        description="Voice model runs. Run ./voicelab to start the website.",
         epilog=(
             "Examples: ./voicelab | ./voicelab models | "
             "./voicelab run breeze --text 'Hello'"
@@ -118,9 +118,7 @@ def parser_for(models: tuple[ModelCommand, ...]) -> argparse.ArgumentParser:
     serve = subcommands.add_parser("serve", help="Start the shared website (default)")
     serve.add_argument("--config", type=Path, help="Local server configuration")
     subcommands.add_parser("models", help="List models and their implemented runtimes")
-    run = subcommands.add_parser(
-        "run", help="Run a model experiment; options vary by model"
-    )
+    run = subcommands.add_parser("run", help="Run a model; options vary by model")
     choices = run.add_subparsers(dest="model", required=True)
     for model in models:
         item = choices.add_parser(model.name, help=model.label, add_help=False)
@@ -133,7 +131,7 @@ def parser_for(models: tuple[ModelCommand, ...]) -> argparse.ArgumentParser:
     return parser
 
 
-def experiment_arguments(
+def run_arguments(
     model: ModelCommand, runtime: RuntimeCommand, arguments: list[str]
 ) -> list[str]:
     result = [*runtime.prefix, *arguments]
@@ -178,7 +176,7 @@ def main(argv: list[str] | None = None) -> int:
                 runtime for runtime in model.runtimes if runtime.name == args.runtime
             )
             workspace.execute(
-                runtime.executable, experiment_arguments(model, runtime, forwarded)
+                runtime.executable, run_arguments(model, runtime, forwarded)
             )
     except (RuntimeError, OSError, subprocess.CalledProcessError) as exc:
         print(f"Voice Lab: {exc}", file=sys.stderr)

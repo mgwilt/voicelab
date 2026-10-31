@@ -1,6 +1,6 @@
 import { element, integerInput, labeled, readInteger } from "../../components/dom.js";
 import type { ControlPanel } from "../../components/panel.js";
-import type { Emit, ExperimentSession, SynthesisModel } from "../../domain/experiment.js";
+import type { Emit, VoiceSession, SynthesisModel } from "../../domain/session.js";
 import { SynthesisSession } from "./session.js";
 import { ReferenceAudioInput, type ReferenceAudio } from "./reference.js";
 
@@ -104,7 +104,7 @@ export class SpeechPanel<Request extends object> implements ControlPanel {
   constructor(private readonly model: SynthesisModel, build: (form: SpeechForm) => () => Request | Promise<Request>) {
     this.request = build(this.form);
   }
-  createSession(emit: Emit): ExperimentSession { return new SynthesisSession({ model: this.model, request: this.request }, emit); }
+  createSession(emit: Emit): VoiceSession { return new SynthesisSession({ model: this.model, request: this.request }, emit); }
   setDisabled(disabled: boolean): void { this.form.setDisabled(disabled); }
   dispose(): void { this.element.remove(); }
 }

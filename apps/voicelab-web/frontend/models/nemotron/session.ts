@@ -1,11 +1,11 @@
 import { Microphone } from "../../audio/microphone.js";
 import { Playback } from "../../audio/playback.js";
-import type { DuplexModel, Emit, ExperimentSession, Outcome } from "../../domain/experiment.js";
-import { unreachable } from "../../domain/experiment.js";
+import type { DuplexModel, Emit, VoiceSession, Outcome } from "../../domain/session.js";
+import { unreachable } from "../../domain/session.js";
 import { streamSession, type SessionSender } from "../../transport/socket.js";
 import { decode, type StartRequest } from "./protocol.js";
 
-export class DuplexSession implements ExperimentSession {
+export class DuplexSession implements VoiceSession {
   private readonly playback = new Playback();
   private readonly microphone = new Microphone();
   private readonly cancellation = new AbortController();

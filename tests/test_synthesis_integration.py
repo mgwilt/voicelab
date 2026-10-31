@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import BaseModel, ConfigDict
 
-from voicelab.synthesis.experiments import Audio, ModelEvidence, run_trial
+from voicelab.runs.synthesis.execution import Audio, ModelEvidence, run_trial
 from voicelab_core.synthesis import Completion, SynthesisMetrics
 from voicelab_web.models.synthesis.service import Delivery, SynthesisService
 

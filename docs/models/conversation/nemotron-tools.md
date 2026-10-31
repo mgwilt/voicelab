@@ -1,6 +1,6 @@
 # Test a Nemotron tool response
 
-This experiment supplies a local JSON result to a tool request made by Nemotron.
+This run supplies a local JSON result to a tool request made by Nemotron.
 It does not execute a tool. It uses NVIDIA's two-pass offline workflow.
 Live microphone sessions do not accept tool responses.
 
@@ -16,7 +16,7 @@ Recording requires trusted HTTPS and stops after 30 seconds. The uploaded input 
 Trailing silence gives the model time to
 finish a request and an answer. The default is 16 seconds; the limit is 30 seconds.
 The model must request the tool named in the supplied response. Otherwise, the test fails.
-The workflow accepts one tool call and one supplied result per experiment.
+The workflow accepts one tool call and one supplied result per run.
 A completed result means that EOTR and continuation text were observed. The fixed
 audio timeline can still end before a longer spoken answer finishes.
 
@@ -61,7 +61,7 @@ number between one and one hundred.” Then run:
 
 The report records the detected call, response interval, predicted end-of-response
 marker (EOTR), continued text, and timings. It hashes the supplied tool settings.
-A failed or incomplete experiment retains its report and any completed audio.
+A failed or incomplete run retains its report and any completed audio.
 Use ASCII tool definitions and results. JSON numbers must be finite.
 
 ## Interpret the result

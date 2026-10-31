@@ -1,8 +1,8 @@
-import type { Emit, ExperimentSession } from "../domain/experiment.js";
+import type { Emit, VoiceSession } from "../domain/session.js";
 
 export interface ControlPanel {
   readonly element: HTMLElement;
-  createSession(emit: Emit): ExperimentSession;
+  createSession(emit: Emit): VoiceSession;
   setDisabled(disabled: boolean): void;
   dispose(): void;
 }

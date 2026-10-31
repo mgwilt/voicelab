@@ -1,6 +1,6 @@
 import { AudioInput } from "../../components/audio-input.js";
 import type { ControlPanel } from "../../components/panel.js";
-import type { Emit, ExperimentSession, MingAudioModel } from "../../domain/experiment.js";
+import type { Emit, VoiceSession, MingAudioModel } from "../../domain/session.js";
 import { SpeechForm } from "../synthesis/form.js";
 import { HistoryInput } from "./history.js";
 import { MingAudioSession } from "./session.js";
@@ -32,7 +32,7 @@ export class MingAudioPanel implements ControlPanel {
     this.advanced.element.append(this.history.element);
     this.form.note("Spoken dialogue and TTS produce buffered speech. ASR transcribes audio; audio understanding and text return text only. A reference voice needs at least 0.4 seconds.");
   }
-  createSession(emit: Emit): ExperimentSession {
+  createSession(emit: Emit): VoiceSession {
     const file = this.audio.read();
     const task = this.task();
     if ((task === "asr" || task === "audio_understanding") && file === null) throw new Error("This task needs input audio.");

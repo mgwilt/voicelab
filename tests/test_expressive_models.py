@@ -13,7 +13,7 @@ from unittest.mock import patch
 import numpy as np
 from pydantic import ValidationError
 
-from voicelab.drama.history import load_previous_takes
+from voicelab.models.drama.history import load_previous_takes
 from voicelab_inference.drama.mlx.contracts import Chunk as DramaChunk
 from voicelab_inference.drama.mlx.runtime import DramaMLX
 from voicelab_inference.kitten.torch.contracts import Chunk as KittenChunk

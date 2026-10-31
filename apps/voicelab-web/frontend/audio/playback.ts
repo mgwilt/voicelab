@@ -1,4 +1,4 @@
-/** One audio context and bounded playback queue per experiment. */
+/** One audio context and bounded playback queue per session. */
 export class Playback {
   private contextValue: AudioContext | null = null;
   private readonly sources = new Set<AudioBufferSourceNode>();

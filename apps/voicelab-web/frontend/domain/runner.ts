@@ -1,4 +1,4 @@
-import type { Emit, ExperimentSession, Outcome, Phase, SessionEvent } from "./experiment.js";
+import type { Emit, VoiceSession, Outcome, Phase, SessionEvent } from "./session.js";
 
 export interface RunState {
   readonly phase: Phase;
@@ -8,7 +8,7 @@ export interface RunState {
 
 /** One owner for async lifecycle; stale callbacks cannot update a newer run. */
 export class SessionRunner {
-  private current: ExperimentSession | null = null;
+  private current: VoiceSession | null = null;
   private cancellation: AbortController | null = null;
   private pending: Promise<void> | null = null;
   private epoch = 0;
@@ -21,7 +21,7 @@ export class SessionRunner {
 
   get busy(): boolean { return this.current !== null; }
 
-  start(create: (emit: Emit) => ExperimentSession): void {
+  start(create: (emit: Emit) => VoiceSession): void {
     if (this.disposed || this.busy) return;
     const epoch = ++this.epoch;
     const cancellation = new AbortController();
@@ -37,11 +37,11 @@ export class SessionRunner {
       return;
     }
     this.cancellation = cancellation;
-    this.onState({ phase: "preparing", message: "Starting experiment…", error: false });
+    this.onState({ phase: "preparing", message: "Starting session…", error: false });
     this.pending = this.execute(this.current, cancellation, epoch);
   }
 
-  private async execute(session: ExperimentSession, cancellation: AbortController, epoch: number): Promise<void> {
+  private async execute(session: VoiceSession, cancellation: AbortController, epoch: number): Promise<void> {
     let outcome: Outcome = { kind: "cancelled", message: "Session stopped" };
     let errorMessage: string | null = null;
     try {

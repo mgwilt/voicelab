@@ -19,7 +19,7 @@ Authenticate the local Hugging Face client. Do not put access tokens in project 
 
 For a browser test, select Sesame in the [shared website](../../usage/README.md).
 The page provides text, speaker, reference audio, transcript, sampling, seed, and frame-limit controls.
-Reference conditioning is available through the website, Python, and the experiment command.
+Reference conditioning is available through the website, Python, and the run command.
 
 ## Configure browser inference
 
@@ -34,7 +34,7 @@ Network and TLS settings are in the [network guide](../../usage/network.md).
 
 ## Supply reference speech
 
-Add both options to the experiment command:
+Add both options to the run command:
 
 ```sh
 --reference-audio .local/reference.wav --reference-text 'The reference transcript.'

@@ -1,7 +1,7 @@
 # Voice Lab
 
 Test voice AI models. Compare audio quality, latency, and real-time factor (RTF) across runtimes and devices.
-Use the shared mobile-friendly website or save experiments from the command line.
+Use the shared mobile-friendly website or save runs from the command line.
 
 Local lab features: ☑ exposed · ☐ not exposed. Unchecked features can still exist in the upstream model.
 TTS = text to speech. S2S = speech to speech.
@@ -36,7 +36,7 @@ Run this command from the repository root:
 The launcher prepares the lab automatically. Open `http://127.0.0.1:8443` and select a model.
 For mobile access, read the [usage guide](docs/usage/README.md).
 
-## Run an experiment
+## Run a model
 
 ```sh
 ./voicelab models

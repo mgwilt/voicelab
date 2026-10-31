@@ -1,4 +1,4 @@
-import type { Measurement } from "../../domain/experiment.js";
+import type { Measurement } from "../../domain/session.js";
 import { boolean, finite, nullableNumber, parse, record, text } from "../../transport/decode.js";
 
 export type Message =

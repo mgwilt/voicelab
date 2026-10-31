@@ -12,7 +12,7 @@ Voice Lab uses local KittenML 0.9.7 and emits mono 24 kHz audio.
 
 Supported devices are `cpu`, `mps`, and `cuda`; unavailable devices fail explicitly.
 Without a named voice or recording, the lab uses Bella.
-The `expressive` preset supports expression experiments.
+The `expressive` preset supports expression runs.
 Native text syntax includes leading `[emotion]` tags, inline `<event>` tags, and `(((emphasis)))` spans.
 First use downloads approximately 2.1 GB, including the separate speech decoder.
 

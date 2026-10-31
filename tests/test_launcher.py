@@ -11,9 +11,9 @@ from unittest.mock import patch
 from voicelab.launch.cli import (
     Arguments,
     commands,
-    experiment_arguments,
     main,
     parser_for,
+    run_arguments,
 )
 from voicelab.launch.workspace import Workspace
 
@@ -87,13 +87,11 @@ class LauncherTests(unittest.TestCase):
 
     def test_default_outputs_are_fresh_but_explicit_output_is_preserved(self) -> None:
         model = commands()[2]
-        first = experiment_arguments(model, model.runtimes[0], ["--text", "Hello"])
-        second = experiment_arguments(model, model.runtimes[0], ["--text", "Hello"])
+        first = run_arguments(model, model.runtimes[0], ["--text", "Hello"])
+        second = run_arguments(model, model.runtimes[0], ["--text", "Hello"])
         self.assertNotEqual(first[-1], second[-1])
         explicit = ["--text", "Hello", "--output=artifacts/chosen"]
-        self.assertEqual(
-            experiment_arguments(model, model.runtimes[0], explicit), explicit
-        )
+        self.assertEqual(run_arguments(model, model.runtimes[0], explicit), explicit)
 
     def test_rebuilds_only_for_changed_or_missing_assets(self) -> None:
         with (

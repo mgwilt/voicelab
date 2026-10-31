@@ -1,4 +1,4 @@
-"""Bounded upload boundary for the offline supplied-response experiment."""
+"""Bounded upload boundary for the offline supplied-response session."""
 
 from typing import Literal, Self
 

@@ -1,5 +1,5 @@
 import type { ControlPanel } from "../../components/panel.js";
-import type { AddedSynthesisModel } from "../../domain/experiment.js";
+import type { AddedSynthesisModel } from "../../domain/session.js";
 import { SpeechPanel } from "../synthesis/form.js";
 import type { Request } from "./request.js";
 

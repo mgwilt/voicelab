@@ -11,8 +11,8 @@ from unittest.mock import patch
 
 from pydantic import ValidationError
 
-from voicelab.ming_audio.experiments import run_experiment as run_ming
-from voicelab.personaplex.experiments import read_input
+from voicelab.models.ming_audio.runs import execute_run as run_ming
+from voicelab.models.personaplex.runs import read_input
 from voicelab_inference.ming_audio.mlx.contracts import Metrics, Response
 from voicelab_models.ming_audio.model import Request as MingRequest
 from voicelab_models.personaplex.model import FRAME_BYTES
@@ -69,7 +69,7 @@ class RequestTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "run"
             with (
-                patch("voicelab.ming_audio.experiments.MingAudioMLX", Backend),
+                patch("voicelab.models.ming_audio.runs.MingAudioMLX", Backend),
                 self.assertRaisesRegex(RuntimeError, "generation limit"),
             ):
                 run_ming(request(), output)

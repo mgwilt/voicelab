@@ -1,6 +1,6 @@
 import { AudioInput } from "../../components/audio-input.js";
 import type { ControlPanel } from "../../components/panel.js";
-import type { Emit, ExperimentSession, MiniCPMModel } from "../../domain/experiment.js";
+import type { Emit, VoiceSession, MiniCPMModel } from "../../domain/session.js";
 import { SpeechForm } from "../synthesis/form.js";
 import type { ReferenceAudio } from "../synthesis/reference.js";
 import { MiniCPMSession, type StartRequest } from "./session.js";
@@ -44,7 +44,7 @@ export class MiniCPMPanel implements ControlPanel {
     this.updateMode();
     this.form.note("Live mode keeps listening during speech, for up to two minutes. Spoken answer uses recorded audio or text. The first run builds the native runtime and downloads about 8 GB. Reference audio conditions understanding; the native waveform decoder keeps its preset speaker. Voice only; image and video input are outside this lab workflow.");
   }
-  createSession(emit: Emit): ExperimentSession {
+  createSession(emit: Emit): VoiceSession {
     return new MiniCPMSession(this.model, async (): Promise<StartRequest> => {
       const live = this.mode() === "Live conversation";
       const history: { role: "user" | "assistant"; text: string }[] = [];
