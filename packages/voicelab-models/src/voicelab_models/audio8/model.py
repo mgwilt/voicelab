@@ -18,11 +18,11 @@ class Request(BaseModel):
 
     text: str = Field(min_length=1, max_length=2000)
     seed: int = Field(default=0, ge=0, le=2**32 - 1)
-    temperature: float = Field(default=0.7, gt=0, le=2, allow_inf_nan=False)
+    temperature: float = Field(default=0.8, gt=0, le=2, allow_inf_nan=False)
     max_frames: int = Field(default=512, ge=1, le=1024)
     ref_audio: ReferenceAudio | None = None
     ref_text: str | None = Field(default=None, min_length=1, max_length=2000)
-    top_p: float = Field(default=0.9, gt=0, le=1, allow_inf_nan=False)
+    top_p: float = Field(default=0.95, gt=0, le=1, allow_inf_nan=False)
     top_k: int = Field(default=50, ge=0, le=4096)
     do_sample: bool = True
 

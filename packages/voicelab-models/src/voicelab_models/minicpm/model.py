@@ -39,7 +39,7 @@ class Request(BaseModel):
     seed: int = Field(default=0, ge=0, le=2**32 - 1)
     temperature: float = Field(default=0.7, ge=0, le=2, allow_inf_nan=False)
     top_p: float = Field(default=0.8, gt=0, le=1, allow_inf_nan=False)
-    top_k: int = Field(default=20, ge=1, le=200)
+    top_k: int = Field(default=100, ge=1, le=200)
     tts_temperature: float = Field(default=0.8, gt=0, le=2, allow_inf_nan=False)
     length_penalty: float = Field(default=1.1, ge=0.1, le=2, allow_inf_nan=False)
     listen_prob_scale: float = Field(default=1.0, gt=0, le=3, allow_inf_nan=False)

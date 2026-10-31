@@ -33,11 +33,11 @@ def main() -> None:
     )
     add_run_arguments(parser)
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--temperature", type=float, default=0.7)
+    parser.add_argument("--temperature", type=float, default=0.8)
     parser.add_argument("--max-frames", type=int, default=512)
     parser.add_argument("--ref-audio", type=Path)
     parser.add_argument("--ref-text")
-    parser.add_argument("--top-p", type=float, default=0.9)
+    parser.add_argument("--top-p", type=float, default=0.95)
     parser.add_argument("--top-k", type=int, default=50)
     parser.add_argument(
         "--do-sample", action=argparse.BooleanOptionalAction, default=True

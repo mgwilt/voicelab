@@ -10,11 +10,11 @@ export function createPanel(model: Extract<AddedSynthesisModel, { id: "audio8" }
     const ref_audio = reference.referenceAudio("Reference speech");
     const ref_text = reference.optionalText("Exact reference transcript", 2000);
     const sampling = form.section("Sampling");
-    const top_p = sampling.decimal("Top p", 0.9, 0.01, 1);
+    const top_p = sampling.decimal("Top p", 0.95, 0.01, 1);
     const top_k = sampling.integer("Top k (0 disables filtering)", 50, 0, 4096);
     const do_sample = sampling.checkbox("Sample tokens", true);
     const seed = form.integer("Seed", 0, 0, 4294967295);
-    const temperature = form.decimal("Temperature", 0.7, 0.01, 2);
+    const temperature = form.decimal("Temperature", 0.8, 0.01, 2);
     const max_frames = form.integer("Frame limit", 512, 1, 1024);
     return async () => ({ ref_audio: await ref_audio(), ref_text: ref_text(), top_p: top_p(), top_k: top_k(), do_sample: do_sample(), text: text(), seed: seed(), temperature: temperature(), max_frames: max_frames() });
   });

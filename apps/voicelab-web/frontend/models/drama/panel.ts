@@ -20,7 +20,7 @@ export function createPanel(model: Extract<AddedSynthesisModel, { id: "drama" }>
       text: history.optionalText(`Earlier take ${index + 1} transcript`, 4000),
     }));
     const advanced = form.section("Advanced generation");
-    const top_k = advanced.optionalInteger("Top k", 1, 1024);
+    const top_k = advanced.optionalInteger("Top k", 1, 1024, 30);
     const streaming_interval = advanced.decimal("Streaming interval", 0.32, 0.05, 5);
     const first_chunk_frames = advanced.optionalInteger("First chunk frames", 1, 256);
     const temperature = advanced.decimal("Temperature", 1.0, 0.001, 2);

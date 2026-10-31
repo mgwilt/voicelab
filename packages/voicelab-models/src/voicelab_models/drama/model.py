@@ -36,7 +36,7 @@ class Request(BaseModel):
     text: str = Field(min_length=1, max_length=4000)
     references: list[Reference] = Field(default_factory=list, max_length=4)
     previous_takes: list[PreviousTake] = Field(default_factory=list, max_length=2)
-    top_k: int | None = Field(default=None, ge=1, le=1024)
+    top_k: int | None = Field(default=30, ge=1, le=1024)
     streaming_interval: float = Field(default=0.32, ge=0.05, le=5, allow_inf_nan=False)
     first_chunk_frames: int | None = Field(default=None, ge=1, le=256)
     seed: int = Field(default=0, ge=0, le=2**32 - 1)

@@ -26,9 +26,10 @@ export class SpeechForm {
       return input.value.trim() === "" ? null : input.value;
     };
   }
-  optionalDecimal(label: string, min: number, max: number): () => number | null {
+  optionalDecimal(label: string, min: number, max: number, value: number | null = null): () => number | null {
     const input = element("input");
     input.type = "number"; input.min = String(min); input.max = String(max); input.step = "any";
+    input.value = value === null ? "" : String(value);
     this.inputs.push(input); this.element.append(labeled(label, input, "Blank uses the model default."));
     return () => {
       if (input.value === "") return null;
@@ -36,8 +37,8 @@ export class SpeechForm {
       return input.valueAsNumber;
     };
   }
-  optionalInteger(label: string, min: number, max: number): () => number | null {
-    const read = this.optionalDecimal(label, min, max);
+  optionalInteger(label: string, min: number, max: number, value: number | null = null): () => number | null {
+    const read = this.optionalDecimal(label, min, max, value);
     return () => {
       const value = read();
       if (value !== null && !Number.isSafeInteger(value)) throw new Error(`${label} must be a whole number.`);

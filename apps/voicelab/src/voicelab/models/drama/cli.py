@@ -37,7 +37,7 @@ def main() -> None:
     parser.add_argument("--max-new-tokens", type=int, default=1024)
     parser.add_argument("--temperature", type=float, default=1.0)
     parser.add_argument("--top-p", type=float, default=0.9)
-    parser.add_argument("--top-k", type=int, default=None)
+    parser.add_argument("--top-k", type=int, default=30)
     parser.add_argument("--streaming-interval", type=float, default=0.32)
     parser.add_argument("--first-chunk-frames", type=int, default=None)
     parser.add_argument("--reference-audio", type=Path, action="append", default=[])

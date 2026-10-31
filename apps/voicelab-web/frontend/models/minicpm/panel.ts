@@ -29,7 +29,7 @@ export class MiniCPMPanel implements ControlPanel {
   private readonly seed = this.sampling.integer("Seed", 0, 0, 4294967295);
   private readonly temperature = this.sampling.decimal("Text temperature", 0.7, 0, 2);
   private readonly topP = this.sampling.decimal("Text top-p", 0.8, 0.0001, 1);
-  private readonly topK = this.sampling.integer("Text top-k", 20, 1, 200);
+  private readonly topK = this.sampling.integer("Text top-k", 100, 1, 200);
   private readonly ttsTemperature = this.sampling.decimal("Speech temperature", 0.8, 0.0001, 2);
   private readonly lengthPenalty = this.sampling.decimal("Speech length penalty", 1.1, 0.1, 2);
   private readonly liveControls = this.sampling.section("Live controls");

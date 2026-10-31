@@ -46,7 +46,7 @@ def main() -> int:
     parser.add_argument("--max-tokens", type=int, default=256)
     parser.add_argument("--temperature", type=float, default=0.7)
     parser.add_argument("--top-p", type=float, default=0.8)
-    parser.add_argument("--top-k", type=int, default=20)
+    parser.add_argument("--top-k", type=int, default=100)
     parser.add_argument("--tts-temperature", type=float, default=0.8)
     parser.add_argument("--length-penalty", type=float, default=1.1)
     parser.add_argument("--listen-prob-scale", type=float, default=1.0)

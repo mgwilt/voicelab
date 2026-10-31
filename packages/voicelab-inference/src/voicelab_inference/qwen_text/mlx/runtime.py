@@ -4,7 +4,14 @@ from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from typing import Literal
 
-from voicelab_models.qwen_text.model import CHECKPOINT_ID, REVISION
+from voicelab_models.qwen_text.model import (
+    CHECKPOINT_ID,
+    MIN_P,
+    REVISION,
+    TEMPERATURE,
+    TOP_K,
+    TOP_P,
+)
 
 
 @dataclass(frozen=True)
@@ -31,6 +38,7 @@ class QwenTextMLX:
         self, messages: tuple[Message, ...], cancelled: Callable[[], bool]
     ) -> Iterator[str]:
         from mlx_lm import stream_generate
+        from mlx_lm.sample_utils import make_sampler
 
         if self.model is None or self.tokenizer is None:
             raise RuntimeError("Qwen text is not loaded")
@@ -42,7 +50,13 @@ class QwenTextMLX:
         if not isinstance(prompt, str):
             raise TypeError("Qwen tokenizer did not produce a text prompt")
         for response in stream_generate(
-            self.model, self.tokenizer, prompt=prompt, max_tokens=256
+            self.model,
+            self.tokenizer,
+            prompt=prompt,
+            max_tokens=256,
+            sampler=make_sampler(
+                temp=TEMPERATURE, top_p=TOP_P, top_k=TOP_K, min_p=MIN_P
+            ),
         ):
             if cancelled():
                 raise InterruptedError("Text generation interrupted")
