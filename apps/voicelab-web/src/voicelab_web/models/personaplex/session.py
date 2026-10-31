@@ -12,9 +12,9 @@ from anyio import CancelScope
 from fastapi import WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from voicelab.runs.worker import InferenceWorker
 from voicelab_inference.personaplex.mlx.runtime import PersonaPlexMLX
 from voicelab_models.personaplex.model import FRAME_BYTES, MAX_FRAMES, Request
-from voicelab_web.transport.worker import InferenceWorker
 
 logger = logging.getLogger(__name__)
 

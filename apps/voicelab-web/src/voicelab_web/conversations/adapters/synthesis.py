@@ -1,26 +1,21 @@
 """Reuse resident typed synthesis services without a second model registry."""
 
-from typing import Protocol
-
 from pydantic import BaseModel
 
+from voicelab.conversations.contracts import Audio, Cancelled, Emit
 from voicelab_core.synthesis import SynthesisMetrics
-from voicelab_web.conversations.contracts import Audio, Cancelled, Emit
 from voicelab_web.models.synthesis.service import SynthesisService
 from voicelab_web.transport.pcm import pcm16
-
-
-class Voice(Protocol):
-    def speak(
-        self, text: str, emit: Emit, cancelled: Cancelled
-    ) -> SynthesisMetrics: ...
-    def close(self) -> None: ...
 
 
 class SynthesisVoice[Request: BaseModel]:
     def __init__(self, service: SynthesisService[Request], settings: BaseModel) -> None:
         self.service = service
         self.template = service.request_type.model_validate(settings.model_dump())
+
+    @property
+    def sample_rate(self) -> int:
+        return self.service.sample_rate
 
     def speak(self, text: str, emit: Emit, cancelled: Cancelled) -> SynthesisMetrics:
         from voicelab_web.transport.pcm import Audio as Samples

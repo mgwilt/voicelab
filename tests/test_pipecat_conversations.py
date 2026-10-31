@@ -9,11 +9,16 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
-from voicelab_web.conversations.history import History
+from voicelab.conversations.contracts import Notice
+from voicelab.conversations.history import History
+from voicelab.runs.worker import InferenceWorker
 from voicelab_web.conversations.requests import REQUEST
 from voicelab_web.conversations.routes import Conversations, install
 from voicelab_web.transport.lease import SessionLease
-from voicelab_web.transport.worker import InferenceWorker
+
+
+async def notice(event: Notice) -> None:
+    pass
 
 
 async def release() -> None:
@@ -95,7 +100,7 @@ class RequestTests(unittest.TestCase):
             raise AssertionError("Signaling validation must not construct a model")
 
         # Factory is never invoked in these reservation-only tests.
-        from voicelab_web.conversations.contracts import Backend
+        from voicelab.conversations.contracts import Backend
 
         def factory(request: object) -> Backend:
             no_backend(request)
@@ -155,7 +160,7 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
         worker.shutdown()
 
     async def test_unoffered_reservation_expires(self) -> None:
-        from voicelab_web.conversations.contracts import Backend
+        from voicelab.conversations.contracts import Backend
 
         def unused(request: object) -> Backend:
             raise AssertionError("No model should load before signaling")
@@ -180,10 +185,9 @@ class FrameBoundaryTests(unittest.IsolatedAsyncioTestCase):
         self,
     ) -> None:
         from pipecat.frames.frames import InputAudioRawFrame
-        from pipecat.processors.frameworks.rtvi import RTVIProcessor
 
-        from voicelab_web.conversations.contracts import Cancelled, Emit
-        from voicelab_web.conversations.processor import ConversationProcessor
+        from voicelab.conversations.contracts import Cancelled, Emit
+        from voicelab.conversations.processor import ConversationProcessor
 
         class Duplex:
             input_rate = 16000
@@ -205,7 +209,7 @@ class FrameBoundaryTests(unittest.IsolatedAsyncioTestCase):
             def close(self) -> None:
                 pass
 
-        processor = ConversationProcessor(Duplex(), RTVIProcessor())
+        processor = ConversationProcessor(Duplex(), notice)
         try:
             processor.ready = True
             self.assertIsNone(processor.detector)
@@ -226,10 +230,9 @@ class FrameBoundaryTests(unittest.IsolatedAsyncioTestCase):
             await processor.close()
 
     async def test_concurrent_close_waits_for_the_same_device_cleanup(self) -> None:
-        from pipecat.processors.frameworks.rtvi import RTVIProcessor
 
-        from voicelab_web.conversations.contracts import Cancelled, Emit
-        from voicelab_web.conversations.processor import ConversationProcessor
+        from voicelab.conversations.contracts import Cancelled, Emit
+        from voicelab.conversations.processor import ConversationProcessor
 
         entered, release_device = threading.Event(), threading.Event()
 
@@ -257,7 +260,7 @@ class FrameBoundaryTests(unittest.IsolatedAsyncioTestCase):
                 release_device.wait(2)
 
         backend = Backend()
-        processor = ConversationProcessor(backend, RTVIProcessor())
+        processor = ConversationProcessor(backend, notice)
         first = asyncio.create_task(processor.close())
         await asyncio.to_thread(entered.wait, 1)
         first.cancel()
@@ -280,7 +283,7 @@ class TurnDetectionTests(unittest.IsolatedAsyncioTestCase):
         from pipecat.audio.turn.base_turn_analyzer import EndOfTurnState
         from pipecat.audio.vad.vad_analyzer import VADState
 
-        from voicelab_web.conversations.turns import TurnDetector
+        from voicelab.conversations.turns import TurnDetector
 
         vad = MagicMock()
         vad.analyze_audio = AsyncMock(
@@ -299,11 +302,9 @@ class TurnDetectionTests(unittest.IsolatedAsyncioTestCase):
         )
         smart.cleanup = AsyncMock()
         with (
+            patch("voicelab.conversations.turns.SileroVADAnalyzer", return_value=vad),
             patch(
-                "voicelab_web.conversations.turns.SileroVADAnalyzer", return_value=vad
-            ),
-            patch(
-                "voicelab_web.conversations.turns.LocalSmartTurnAnalyzerV3",
+                "voicelab.conversations.turns.LocalSmartTurnAnalyzerV3",
                 return_value=smart,
             ),
         ):

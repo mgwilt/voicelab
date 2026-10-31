@@ -5,9 +5,9 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from voicelab.runs.worker import InferenceWorker
 from voicelab_core.contracts import GenerationSettings
 from voicelab_models.nemotron.tools import ToolSettings
-from voicelab_web.transport.worker import InferenceWorker
 
 if TYPE_CHECKING:
     from voicelab_inference.nemotron.mlx.tool_result import ToolResult

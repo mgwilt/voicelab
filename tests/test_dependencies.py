@@ -17,6 +17,15 @@ class DependencyTests(unittest.TestCase):
                 allowed = ["voicelab.launch"]
             elif parts[0] == "runs":
                 allowed.extend(["voicelab.runs", "voicelab_models.audio"])
+            elif parts[0] == "conversations":
+                allowed.extend(
+                    [
+                        "voicelab.conversations",
+                        "voicelab.runs.worker",
+                        "voicelab_models",
+                        "voicelab_inference",
+                    ]
+                )
             elif parts[0] == "models" and len(parts) > 2:
                 allowed.extend(
                     [
@@ -46,6 +55,17 @@ class DependencyTests(unittest.TestCase):
                                     for prefix in allowed
                                 ),
                                 f"{name} crosses {'.'.join(parts)} ownership",
+                            )
+                        if parts[0] == "conversations":
+                            self.assertNotIn(
+                                module,
+                                {
+                                    "fastapi",
+                                    "starlette",
+                                    "uvicorn",
+                                    "aiortc",
+                                    "voicelab_web",
+                                },
                             )
                         if parts[0] == "launch":
                             self.assertIn(

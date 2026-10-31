@@ -9,10 +9,15 @@ from dataclasses import dataclass
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import ValidationError
 
-from voicelab_web.conversations.contracts import Backend
+from voicelab.conversations.contracts import ConversationSpec
 from voicelab_web.conversations.requests import REQUEST, ConversationRequest
 from voicelab_web.conversations.session import ConversationSession
-from voicelab_web.conversations.transport.schemas import Answer, Created, Offer
+from voicelab_web.conversations.transport.schemas import (
+    Answer,
+    Created,
+    IceUpdate,
+    Offer,
+)
 from voicelab_web.transport.lease import SessionLease
 
 
@@ -30,7 +35,7 @@ class Conversations:
         self,
         lease: SessionLease,
         release_local: Callable[[], Awaitable[None]],
-        factory: Callable[[ConversationRequest], Backend],
+        factory: Callable[[ConversationRequest], ConversationSpec],
     ) -> None:
         self.lease = lease
         self.release_local = release_local
@@ -168,7 +173,19 @@ def install(app: FastAPI, conversations: Conversations) -> None:
         same_origin(request)
         session = conversations.get(identity).session
         if session:
-            await session.processor.interrupt()
+            await session.conversation.controller.interrupt()
+
+    @app.patch("/api/conversations/{identity}/offer", status_code=204)
+    async def update_ice(identity: str, request: Request) -> None:
+        same_origin(request)
+        session = conversations.get(identity).session
+        if session is None:
+            raise HTTPException(409, "Offer required before ICE updates")
+        try:
+            update = IceUpdate.model_validate_json(await bounded_body(request, 110000))
+            await session.update_ice(update)
+        except (ValidationError, ValueError, AssertionError, IndexError) as exc:
+            raise HTTPException(422, "Invalid ICE update") from exc
 
     @app.delete("/api/conversations/{identity}", status_code=204)
     async def end(identity: str, request: Request) -> None:

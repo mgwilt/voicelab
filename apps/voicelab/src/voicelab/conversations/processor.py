@@ -21,18 +21,17 @@ from pipecat.frames.frames import (
     TTSStoppedFrame,
 )
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
-from pipecat.processors.frameworks.rtvi import RTVIProcessor
 
-from voicelab_web.conversations.contracts import Audio, Backend, Notice
-from voicelab_web.conversations.turns import TurnDetector
-from voicelab_web.transport.worker import InferenceWorker
+from voicelab.conversations.contracts import Audio, Backend, Notice, Notify
+from voicelab.conversations.turns import TurnDetector
+from voicelab.runs.worker import InferenceWorker
 
 
 class ConversationProcessor(FrameProcessor):
-    def __init__(self, backend: Backend, rtvi: RTVIProcessor) -> None:
+    def __init__(self, backend: Backend, notify: Notify) -> None:
         super().__init__()
         self.backend = backend
-        self.rtvi = rtvi
+        self.notify = notify
         self.worker = InferenceWorker("conversation")
         self.detector = None if backend.duplex else TurnDetector()
         self.queue: asyncio.Queue[tuple[bytes, float, int]] = asyncio.Queue(
@@ -67,9 +66,7 @@ class ConversationProcessor(FrameProcessor):
             self.queue.get_nowait()
         if active:
             await self.broadcast_interruption()
-            await self.rtvi.send_server_message(
-                Notice(type="interrupted", turn=self.turn).model_dump()
-            )
+            await self.notify(Notice(type="interrupted", turn=self.turn))
 
     @override
     async def process_frame(self, frame: Frame, direction: FrameDirection) -> None:
@@ -87,17 +84,13 @@ class ConversationProcessor(FrameProcessor):
             except ValueError as exc:
                 self.stopping.set()
                 self.cancelled.set()
-                await self.rtvi.send_server_message(
-                    Notice(type="error", text=str(exc)).model_dump()
-                )
+                await self.notify(Notice(type="error", text=str(exc)))
                 await self.push_frame(ErrorFrame(str(exc), fatal=True))
         elif isinstance(frame, BotStoppedSpeakingFrame):
             self.output_pending = False
             if not self.generating and not self.cancelled.is_set():
                 self.backend.played()
-                await self.rtvi.send_server_message(
-                    Notice(type="state", text="Listening").model_dump()
-                )
+                await self.notify(Notice(type="state", text="Listening"))
             await self.push_frame(frame, direction)
         elif isinstance(frame, InterruptionFrame) and self.backend.duplex:
             # Native duplex has its own interruption decisions and recurrent state.
@@ -120,9 +113,7 @@ class ConversationProcessor(FrameProcessor):
             began, turn = await self.detector.push(frame.audio)
             if began:
                 await self.interrupt()
-                await self.rtvi.send_server_message(
-                    Notice(type="state", text="Listening").model_dump()
-                )
+                await self.notify(Notice(type="state", text="Listening"))
             if turn is not None:
                 self.turn += 1
                 self._enqueue(turn)
@@ -151,9 +142,7 @@ class ConversationProcessor(FrameProcessor):
                     )(event.pcm, event.sample_rate, 1)
                 )
             else:
-                await self.rtvi.send_server_message(
-                    event.model_copy(update={"turn": turn}).model_dump()
-                )
+                await self.notify(event.model_copy(update={"turn": turn}))
 
         def emit(event: Audio | Notice, epoch: int, turn: int) -> None:
             if self.stopping.is_set() or epoch != self.epoch:
@@ -177,9 +166,7 @@ class ConversationProcessor(FrameProcessor):
                 return
             self.ready = True
             self.loaded.set()
-            await self.rtvi.send_server_message(
-                Notice(type="state", text="Listening").model_dump()
-            )
+            await self.notify(Notice(type="state", text="Listening"))
             while not self.stopping.is_set():
                 pcm, beginning, epoch = await self.queue.get()
                 if epoch != self.epoch:
@@ -242,9 +229,7 @@ class ConversationProcessor(FrameProcessor):
         except asyncio.CancelledError:
             raise
         except Exception as exc:
-            await self.rtvi.send_server_message(
-                Notice(type="error", text=str(exc)).model_dump()
-            )
+            await self.notify(Notice(type="error", text=str(exc)))
             await self.push_frame(ErrorFrame(str(exc), fatal=True))
         finally:
             self.ready = False

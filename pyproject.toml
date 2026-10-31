@@ -9,6 +9,9 @@ dependencies = []
 [tool.uv]
 package = false
 
+[tool.uv.sources]
+pipecat-ai = { git = "https://github.com/pipecat-ai/pipecat.git", rev = "82c4fdb484db32e3ef933d03c59a395dd7f9a53b" }
+
 [tool.uv.workspace]
 members = ["packages/*", "apps/*"]
 

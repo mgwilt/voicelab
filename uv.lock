@@ -3578,12 +3578,19 @@ dependencies = [
     { name = "voicelab-models" },
 ]
 
+[package.optional-dependencies]
+conversations = [
+    { name = "pipecat-ai" },
+]
+
 [package.metadata]
 requires-dist = [
+    { name = "pipecat-ai", marker = "extra == 'conversations'", git = "https://github.com/pipecat-ai/pipecat.git?rev=82c4fdb484db32e3ef933d03c59a395dd7f9a53b" },
     { name = "voicelab-core", editable = "packages/voicelab-core" },
     { name = "voicelab-inference", editable = "packages/voicelab-inference" },
     { name = "voicelab-models", editable = "packages/voicelab-models" },
 ]
+provides-extras = ["conversations"]
 
 [[package]]
 name = "voicelab-core"
@@ -3678,6 +3685,7 @@ dependencies = [
     { name = "pipecat-ai", extra = ["webrtc"] },
     { name = "pydantic" },
     { name = "uvicorn" },
+    { name = "voicelab", extra = ["conversations"] },
     { name = "voicelab-core" },
     { name = "voicelab-inference" },
     { name = "voicelab-models" },
@@ -3692,6 +3700,7 @@ requires-dist = [
     { name = "pipecat-ai", extras = ["webrtc"], git = "https://github.com/pipecat-ai/pipecat.git?rev=82c4fdb484db32e3ef933d03c59a395dd7f9a53b" },
     { name = "pydantic", specifier = ">=2.14.2" },
     { name = "uvicorn", specifier = ">=0.54.0" },
+    { name = "voicelab", extras = ["conversations"], editable = "apps/voicelab" },
     { name = "voicelab-core", editable = "packages/voicelab-core" },
     { name = "voicelab-inference", editable = "packages/voicelab-inference" },
     { name = "voicelab-models", editable = "packages/voicelab-models" },

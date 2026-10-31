@@ -12,10 +12,10 @@ from anyio import CancelScope
 from fastapi import WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from voicelab.runs.worker import InferenceWorker
 from voicelab_inference.minicpm.native.protocol import Event
 from voicelab_inference.minicpm.native.runtime import MiniCPMNative
 from voicelab_models.minicpm.model import FRAME_BYTES, MAX_SECONDS, Request
-from voicelab_web.transport.worker import InferenceWorker
 
 logger = logging.getLogger(__name__)
 

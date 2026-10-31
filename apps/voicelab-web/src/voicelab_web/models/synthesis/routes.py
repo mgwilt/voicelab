@@ -8,8 +8,9 @@ from typing import Protocol
 from fastapi import FastAPI, WebSocket
 from pydantic import BaseModel
 
+from voicelab.conversations.contracts import Voice
 from voicelab_web.catalog_types import ModelId
-from voicelab_web.conversations.adapters.synthesis import SynthesisVoice, Voice
+from voicelab_web.conversations.adapters.synthesis import SynthesisVoice
 from voicelab_web.models.synthesis.service import SynthesisService
 from voicelab_web.models.synthesis.session import serve_session
 from voicelab_web.transport.lease import SessionLease

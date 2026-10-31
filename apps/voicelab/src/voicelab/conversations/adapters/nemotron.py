@@ -2,11 +2,10 @@
 
 from time import perf_counter
 
+from voicelab.conversations.contracts import Audio, Cancelled, Emit, Notice
 from voicelab_inference.nemotron.mlx.runtime import NemotronMLX
 from voicelab_models.nemotron.model import MLX_8BIT
 from voicelab_models.nemotron.streaming import DuplexSession
-from voicelab_web.conversations.contracts import Audio, Cancelled, Emit, Notice
-from voicelab_web.models.nemotron.schemas import StartMessage
 
 
 class NemotronDuplex:
@@ -14,8 +13,9 @@ class NemotronDuplex:
     frame_bytes = 2560
     duplex = True
 
-    def __init__(self, settings: StartMessage) -> None:
-        self.settings = settings
+    def __init__(self, prompt: str, seed: int) -> None:
+        self.prompt = prompt
+        self.seed = seed
         self.runtime: NemotronMLX | None = None
         self.session: DuplexSession | None = None
         self.elapsed = 0.0
@@ -23,9 +23,7 @@ class NemotronDuplex:
 
     def load(self, emit: Emit, cancelled: Cancelled) -> None:
         self.runtime = NemotronMLX(MLX_8BIT)
-        self.session = self.runtime.start_stream(
-            self.settings.prompt, self.settings.seed
-        )
+        self.session = self.runtime.start_stream(self.prompt, self.seed)
         self.runtime.synchronize()
 
     def process(self, pcm: bytes, emit: Emit, cancelled: Cancelled) -> None:
@@ -43,6 +41,7 @@ class NemotronDuplex:
                     Notice(
                         type="text",
                         text=event.text,
+                        text_mode="snapshot",
                         speaker="user"
                         if event.kind == "user_transcript_delta"
                         else "assistant",

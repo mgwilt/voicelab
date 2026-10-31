@@ -10,11 +10,11 @@ from anyio import CancelScope
 from fastapi import WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 
+from voicelab.runs.worker import InferenceWorker
 from voicelab_inference.qwen_omni.mlx.contracts import Metrics
 from voicelab_inference.qwen_omni.mlx.runtime import QwenOmniMLX
 from voicelab_models.qwen_omni.model import Request
 from voicelab_web.models.qwen_omni.delivery import Delivery, Ready, Text
-from voicelab_web.transport.worker import InferenceWorker
 
 logger = logging.getLogger(__name__)
 

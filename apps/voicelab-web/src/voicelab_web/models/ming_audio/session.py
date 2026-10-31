@@ -13,9 +13,9 @@ from anyio import CancelScope
 from fastapi import WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from voicelab.runs.worker import InferenceWorker
 from voicelab_inference.ming_audio.mlx.runtime import MingAudioMLX
 from voicelab_models.ming_audio.model import Request
-from voicelab_web.transport.worker import InferenceWorker
 
 logger = logging.getLogger(__name__)
 

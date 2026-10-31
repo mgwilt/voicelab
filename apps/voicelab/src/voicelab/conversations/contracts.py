@@ -1,10 +1,12 @@
 """Application-owned audio and conversation interfaces; no Pipecat types."""
 
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict
+
+from voicelab_core.synthesis import SynthesisMetrics
 
 
 class Notice(BaseModel):
@@ -12,6 +14,7 @@ class Notice(BaseModel):
     type: Literal["state", "text", "metrics", "error", "interrupted"]
     text: str = ""
     speaker: Literal["user", "assistant"] = "assistant"
+    text_mode: Literal["delta", "snapshot"] = "delta"
     final: bool = False
     turn: int = 0
     stage: str = ""
@@ -40,3 +43,25 @@ class Backend(Protocol):
     def played(self) -> None: ...
     def interrupt(self) -> None: ...
     def close(self) -> None: ...
+
+
+type Notify = Callable[[Notice], Awaitable[None]]
+
+
+class Voice(Protocol):
+    @property
+    def sample_rate(self) -> int: ...
+
+    def speak(
+        self, text: str, emit: Emit, cancelled: Cancelled
+    ) -> SynthesisMetrics: ...
+    def close(self) -> None: ...
+
+
+@dataclass(frozen=True)
+class CascadeConfig:
+    voice: Voice
+    system_prompt: str
+
+
+type ConversationSpec = Backend | CascadeConfig

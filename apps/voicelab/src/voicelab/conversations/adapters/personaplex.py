@@ -1,8 +1,8 @@
 """Preserve PersonaPlex's native 24 kHz duplex clock."""
 
+from voicelab.conversations.contracts import Audio, Cancelled, Emit, Notice
 from voicelab_inference.personaplex.mlx.runtime import PersonaPlexMLX
 from voicelab_models.personaplex.model import Request
-from voicelab_web.conversations.contracts import Audio, Cancelled, Emit, Notice
 
 
 class PersonaPlexDuplex:

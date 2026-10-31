@@ -2,13 +2,13 @@
 
 import threading
 
+from voicelab.conversations.audio import reference
+from voicelab.conversations.contracts import Audio, Cancelled, Emit, Notice
+from voicelab.conversations.history import History
 from voicelab_inference.minicpm.native.protocol import Event
 from voicelab_inference.minicpm.native.runtime import MiniCPMNative
 from voicelab_inference.whisper.mlx.runtime import WhisperMLX
 from voicelab_models.minicpm.model import HistoryTurn, Request
-from voicelab_web.conversations.audio import reference
-from voicelab_web.conversations.contracts import Audio, Cancelled, Emit, Notice
-from voicelab_web.conversations.history import History
 
 
 class MiniCPMConversation:

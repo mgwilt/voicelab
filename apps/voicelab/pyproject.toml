@@ -5,6 +5,9 @@ description = "Voice AI model execution and evaluation."
 requires-python = ">=3.14,<3.15"
 dependencies = ["voicelab-core", "voicelab-models", "voicelab-inference"]
 
+[project.optional-dependencies]
+conversations = ["pipecat-ai"]
+
 [project.scripts]
 voicelab = "voicelab.launch.cli:main"
 voicelab-breeze = "voicelab.models.breeze.cli:main"
