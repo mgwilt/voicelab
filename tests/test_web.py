@@ -150,6 +150,8 @@ class WebTests(unittest.TestCase):
                     "kitten",
                     "personaplex",
                     "ming_audio",
+                    "qwen_omni",
+                    "minicpm",
                 ],
             )
             self.assertEqual(
@@ -168,6 +170,8 @@ class WebTests(unittest.TestCase):
                     24000,
                     24000,
                     44100,
+                    24000,
+                    24000,
                 ],
             )
             self.assertEqual(client.get("/static/dist/main.js").status_code, 200)
@@ -195,6 +199,8 @@ class WebTests(unittest.TestCase):
                 "/api/maya/session",
                 "/api/personaplex/session",
                 "/api/ming_audio/session",
+                "/api/qwen_omni/session",
+                "/api/minicpm/session",
             ):
                 with client.websocket_connect(
                     route, headers={"origin": "http://testserver"}

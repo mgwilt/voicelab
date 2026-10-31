@@ -18,6 +18,8 @@ ModelId = Literal[
     "kitten",
     "personaplex",
     "ming_audio",
+    "qwen_omni",
+    "minicpm",
 ]
 
 
@@ -123,6 +125,21 @@ class MingAudioInfo(ModelInfo):
     endpoint: Literal["/api/ming_audio/session"] = "/api/ming_audio/session"
 
 
+class QwenOmniInfo(ModelInfo):
+    id: Literal["qwen_omni"] = "qwen_omni"
+    kind: Literal["conversation"] = "conversation"
+    output_sample_rate: Literal[24000] = 24000
+    endpoint: Literal["/api/qwen_omni/session"] = "/api/qwen_omni/session"
+
+
+class MiniCPMInfo(ModelInfo):
+    id: Literal["minicpm"] = "minicpm"
+    kind: Literal["duplex"] = "duplex"
+    input_sample_rate: Literal[16000] = 16000
+    output_sample_rate: Literal[24000] = 24000
+    endpoint: Literal["/api/minicpm/session"] = "/api/minicpm/session"
+
+
 ModelInfoUnion = Annotated[
     NemotronInfo
     | SesameInfo
@@ -136,6 +153,8 @@ ModelInfoUnion = Annotated[
     | OmniVoiceInfo
     | KittenInfo
     | PersonaPlexInfo
-    | MingAudioInfo,
+    | MingAudioInfo
+    | QwenOmniInfo
+    | MiniCPMInfo,
     Field(discriminator="id"),
 ]

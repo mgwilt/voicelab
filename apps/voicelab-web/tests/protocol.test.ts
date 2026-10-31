@@ -67,3 +67,13 @@ test("added catalog workflows reject swapped endpoints and sample rates", () => 
     expect(() => decodeCatalog([{ ...row, endpoint: "/api/sesame/session" }])).toThrow();
   }
 });
+
+test("new voice catalogs preserve duplex and turn-based contracts", () => {
+  const base = { label: "Voice model", description: "Speech", backend: "Local", available: true, reason: null };
+  const qwen = { ...base, id: "qwen_omni", kind: "conversation", endpoint: "/api/qwen_omni/session", output_sample_rate: 24000 };
+  const minicpm = { ...base, id: "minicpm", kind: "duplex", endpoint: "/api/minicpm/session", input_sample_rate: 16000, output_sample_rate: 24000 };
+  expect(decodeCatalog([qwen, minicpm]).map(model => model.kind)).toEqual(["conversation", "duplex"]);
+  expect(() => decodeCatalog([{ ...qwen, kind: "duplex" }])).toThrow();
+  expect(() => decodeCatalog([{ ...minicpm, input_sample_rate: 24000 }])).toThrow();
+  expect(() => decodeCatalog([{ ...qwen, endpoint: minicpm.endpoint }])).toThrow();
+});

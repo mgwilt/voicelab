@@ -68,3 +68,83 @@ test("switching a running model cancels it before disposing its panel", async ()
   expect(button(lab.element, "Generate speech").disabled).toBe(false);
   await lab.dispose();
 });
+
+test("model explorer filters by workflow and keeps unavailable reasons discoverable", () => {
+  const unavailable: Model = {
+    id: "sesame", kind: "synthesis", label: "Sesame", description: "TTS", backend: "PyTorch",
+    available: false, reason: "Install the runtime to enable this model.",
+    endpoint: "/api/sesame/session", outputSampleRate: 24000,
+  };
+  const picker = new ModelPicker([...models.filter(model => model.id !== "sesame"), unavailable], () => {});
+  const search = picker.element.querySelector("input");
+  if (search === null) throw new Error("Missing model search");
+  search.value = "text to speech";
+  search.dispatchEvent(new Event("input"));
+  const visible = [...picker.element.querySelectorAll("li")].filter(row => !row.hidden);
+  expect(visible).toHaveLength(1);
+  expect(visible[0]?.textContent).toContain("Install the runtime");
+  expect(visible[0]?.querySelector("button")?.disabled).toBe(true);
+  search.value = "not a model";
+  search.dispatchEvent(new Event("input"));
+  expect(picker.element.querySelector(".explorer-count")?.textContent).toBe("0 models");
+  const empty = picker.element.querySelector<HTMLElement>(".explorer-content > .field-hint");
+  expect(empty?.hidden).toBe(false);
+  picker.dispose();
+});
+
+test("model explorer closes with Escape and returns keyboard focus to its disclosure", () => {
+  const picker = new ModelPicker(models, () => {});
+  document.body.append(picker.element);
+  try {
+    picker.element.open = true;
+    const search = picker.element.querySelector("input");
+    if (search === null) throw new Error("Missing model search");
+    search.focus();
+    search.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(picker.element.open).toBe(false);
+    expect(document.activeElement).toBe(picker.element.querySelector("summary"));
+  } finally {
+    picker.dispose();
+    picker.element.remove();
+  }
+});
+
+test("workbench views preserve edits and active sessions while exposing output and stop", async () => {
+  let emit: Emit = () => {};
+  let stopCount = 0;
+  let disposedCount = 0;
+  const input = document.createElement("textarea");
+  const lab = new Lab(models, () => ({
+    element: input, setDisabled: disabled => { input.disabled = disabled; },
+    dispose: () => { disposedCount++; },
+    createSession: onEvent => {
+      emit = onEvent;
+      return {
+        run: signal => new Promise<Outcome>((_resolve, reject) => {
+          signal.addEventListener("abort", () => reject(new DOMException("cancelled", "AbortError")));
+        }),
+        stop: () => { stopCount++; },
+      };
+    },
+  }));
+  await Promise.resolve();
+  await Promise.resolve();
+  input.value = "Keep this prompt";
+  button(lab.element, "Output").click();
+  expect(lab.element.querySelector(".controls-view")?.hasAttribute("hidden")).toBe(true);
+  button(lab.element, "Controls").click();
+  expect(input.value).toBe("Keep this prompt");
+  button(lab.element, "Start test").click();
+  emit({ type: "measurement", value: { basis: "input", rtf: .75, audioSeconds: 4, latencyMs: 200, latencyLabel: "Frame p95", backlogSeconds: .1 } });
+  emit({ type: "transcript", speaker: "assistant", text: "A live reply" });
+  button(lab.element, "View output: Input RTF 0.75×").click();
+  expect(lab.element.querySelector(".output-view")?.hasAttribute("hidden")).toBe(false);
+  expect(lab.element.querySelector(".transcript")?.textContent).toContain("A live reply");
+  expect(button(lab.element, "Start test").disabled).toBe(true);
+  button(lab.element, "Stop").click();
+  expect(stopCount).toBe(1);
+  expect(disposedCount).toBe(0);
+  expect(input.value).toBe("Keep this prompt");
+  await lab.dispose();
+  expect(disposedCount).toBe(1);
+});

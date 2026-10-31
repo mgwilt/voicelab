@@ -20,6 +20,8 @@ voicelab-omnivoice = "voicelab.omnivoice.cli:main"
 voicelab-kitten = "voicelab.kitten.cli:main"
 voicelab-personaplex = "voicelab.personaplex.cli:main"
 voicelab-ming-audio = "voicelab.ming_audio.cli:main"
+voicelab-qwen-omni = "voicelab.qwen_omni.cli:main"
+voicelab-minicpm = "voicelab.minicpm.cli:main"
 
 [tool.uv.sources]
 voicelab-core = { workspace = true }

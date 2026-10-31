@@ -33,6 +33,23 @@ function connection(): SocketDouble {
   return socket;
 }
 
+test("model-specific deadlines remain bounded and close expired sessions", async () => {
+  const options = {
+    path: "/api/qwen_omni/session", request: {}, signal: new AbortController().signal,
+    decode: (raw: string) => raw, onAudio: () => {}, onMessage: () => undefined,
+  };
+  for (const timeoutMs of [0, Number.NaN, Number.POSITIVE_INFINITY, 1_800_001]) {
+    expect(() => streamSession({ ...options, timeoutMs })).toThrow("Session timeout");
+  }
+  expect(SocketDouble.latest).toBeNull();
+  const pending = streamSession({ ...options, timeoutMs: 1 });
+  const socket = connection();
+  await expect(pending).rejects.toThrow("Session timed out");
+  expect(socket.closed).toBe(true);
+  expect(socket.onmessage).toBeNull();
+  expect(socket.onclose).toBeNull();
+});
+
 test("socket decodes messages and closes all handlers after completion", async () => {
   const pending = streamSession({
     path: "/api/sesame/session", request: { text: "hello" }, signal: new AbortController().signal,

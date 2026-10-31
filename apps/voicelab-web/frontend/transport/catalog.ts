@@ -68,6 +68,14 @@ export function decodeCatalog(value: unknown): readonly Model[] {
         row["endpoint"] === "/api/ming_audio/session" && row["output_sample_rate"] === 44100) {
       return { ...base, id, kind: "conversation", endpoint: "/api/ming_audio/session", outputSampleRate: 44100 };
     }
+    if (id === "qwen_omni" && row["kind"] === "conversation" &&
+        row["endpoint"] === "/api/qwen_omni/session" && row["output_sample_rate"] === 24000) {
+      return { ...base, id, kind: "conversation", endpoint: "/api/qwen_omni/session", outputSampleRate: 24000 };
+    }
+    if (id === "minicpm" && row["kind"] === "duplex" &&
+        row["endpoint"] === "/api/minicpm/session" && row["input_sample_rate"] === 16000 && row["output_sample_rate"] === 24000) {
+      return { ...base, id, kind: "duplex", endpoint: "/api/minicpm/session", inputSampleRate: 16000, outputSampleRate: 24000 };
+    }
     throw new Error(`Unsupported model contract: ${id}`);
   });
 }

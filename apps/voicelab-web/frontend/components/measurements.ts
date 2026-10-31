@@ -3,7 +3,9 @@ import { element } from "./dom.js";
 
 export class Measurements {
   readonly element = element("section", "measurements");
+  readonly summary = element("span", "rtf-summary", "RTF —");
   private readonly rtf = element("dd", "metric-value", "—");
+  private readonly rtfLabel = element("dt", "metric-label", "Real-time factor");
   private readonly audio = element("dd", "metric-value", "—");
   private readonly latency = element("dd", "metric-value", "—");
   private readonly latencyLabel = element("dt", "metric-label", "Latency");
@@ -14,7 +16,7 @@ export class Measurements {
     this.element.append(element("h2", "section-title", "Measurements"));
     const grid = element("dl", "metric-grid");
     for (const [label, value] of [
-      [element("dt", "metric-label", "Real-time factor"), this.rtf],
+      [this.rtfLabel, this.rtf],
       [element("dt", "metric-label", "Audio duration"), this.audio],
       [this.latencyLabel, this.latency],
       [element("dt", "metric-label", "Input backlog"), this.queue],
@@ -23,16 +25,23 @@ export class Measurements {
       if (label !== undefined && value !== undefined) cell.append(label, value);
       grid.append(cell);
     }
-    this.element.append(grid, this.explanation);
+    const guide = element("details", "measurement-guide");
+    guide.append(element("summary", "", "About these measurements"), this.explanation,
+      element("p", "field-hint", "RTF below 1 means faster than real time. Compare runs with the same inputs and settings."));
+    this.element.append(grid, guide);
   }
   reset(): void {
     this.rtf.textContent = "—"; this.audio.textContent = "—";
     this.latency.textContent = "—"; this.queue.textContent = "—";
+    this.rtfLabel.textContent = "Real-time factor";
+    this.summary.textContent = "RTF —";
     this.latencyLabel.textContent = "Latency";
     this.explanation.textContent = "Measurements appear after audio is processed.";
   }
   update(value: Measurement): void {
     this.rtf.textContent = value.rtf === null ? "—" : `${value.rtf.toFixed(2)}×`;
+    this.rtfLabel.textContent = value.basis === "input" ? "Input RTF" : "Output RTF";
+    this.summary.textContent = `${this.rtfLabel.textContent} ${this.rtf.textContent}`;
     this.audio.textContent = `${value.audioSeconds.toFixed(2)} s`;
     this.latencyLabel.textContent = value.latencyLabel;
     this.latency.textContent = value.latencyMs === null ? "—" : `${Math.round(value.latencyMs)} ms`;

@@ -91,6 +91,16 @@ def commands() -> tuple[ModelCommand, ...]:
             "Ming Audio experiments",
             (RuntimeCommand("mlx", "voicelab-ming-audio"),),
         ),
+        ModelCommand(
+            "qwen-omni",
+            "Multilingual speech conversation",
+            (RuntimeCommand("mlx", "voicelab-qwen-omni"),),
+        ),
+        ModelCommand(
+            "minicpm",
+            "Live and recorded speech conversation",
+            (RuntimeCommand("llama.cpp", "voicelab-minicpm"),),
+        ),
     )
 
 

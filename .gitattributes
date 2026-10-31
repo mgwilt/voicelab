@@ -1,0 +1,2 @@
+# Preserve upstream whitespace in patch context and removed lines.
+packages/voicelab-inference/src/voicelab_inference/minicpm/native/voice-lab.patch whitespace=-blank-at-eol

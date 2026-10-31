@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light dark">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#181818">
   <title>Voice Lab</title>
   <link rel="stylesheet" href="/static/style.css">
   <script type="module" src="/static/dist/main.js"></script>
 </head>
 <body>
+  <a class="skip-link" href="#app">Skip to experiment</a>
   <main>
     <header class="page-header">
-      <p class="eyebrow">VOICE / LAB</p>
-      <h1>Listen. Test. Compare.</h1>
-      <p>Explore voice models and measure how they perform.</p>
+      <h1><span class="brand-mark" aria-hidden="true">∿</span> Voice Lab</h1>
+      <p>Voice model workbench</p>
     </header>
-    <div id="app"><p class="loading">Loading available models…</p></div>
-    <footer>RTF below 1 means faster than real time. Compare measurements with the same inputs and settings.</footer>
+    <div id="app" tabindex="-1"><p class="loading" role="status">Loading available models…</p></div>
     <noscript>This lab requires JavaScript for audio and model sessions.</noscript>
   </main>
 </body>

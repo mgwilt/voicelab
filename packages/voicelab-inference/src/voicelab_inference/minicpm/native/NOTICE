@@ -1,0 +1,18 @@
+Voice Lab MiniCPM native integration
+
+Source: https://github.com/OpenBMB/llama.cpp-omni
+Revision: a64932ec615e1463158129feaf2f0752d0c07a2e
+Upstream license: MIT (see LICENSE in this directory).
+
+voice-lab.patch modifies this pinned source at preparation time. It is not a
+replacement inference model. The patch owns these integration corrections:
+- private IPv4 loopback listener with bearer authentication;
+- supplied system instructions in native turn and duplex prompt formats;
+- final queued text delivery and acknowledgments for silent duplex steps;
+- explicit speech drain and truthful text/acoustic completion boundaries;
+- final duplex acoustic decoding beyond the one-second intermediate chunk limit.
+
+The runtime records the patch SHA-256 in experiment reports. Preparation rejects
+unexpected source changes and records successful builds only after CMake exits.
+The downloaded model weights have their own Apache-2.0 license and provenance;
+this MIT notice applies to the native source, not the model checkpoints.

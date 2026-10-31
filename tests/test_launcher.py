@@ -64,6 +64,20 @@ class LauncherTests(unittest.TestCase):
         )
         self.assertEqual(args.runtime, "mlx")
         self.assertEqual(extra, ["--text", "Hello"])
+        for model_name, runtime_name, executable in (
+            ("qwen-omni", "mlx", "voicelab-qwen-omni"),
+            ("minicpm", "llama.cpp", "voicelab-minicpm"),
+        ):
+            with self.subTest(model=model_name):
+                selected, options = parser.parse_known_args(
+                    ["run", model_name, "--input", "question.wav"],
+                    namespace=Arguments(),
+                )
+                self.assertEqual(selected.runtime, runtime_name)
+                self.assertEqual(
+                    selected.model_command.runtimes[0].executable, executable
+                )
+                self.assertEqual(options, ["--input", "question.wav"])
         with (
             redirect_stdout(io.StringIO()),
             patch("sys.stderr", new=io.StringIO()),

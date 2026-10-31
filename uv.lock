@@ -3008,6 +3008,7 @@ version = "0.1.0"
 source = { editable = "packages/voicelab-inference" }
 dependencies = [
     { name = "accelerate" },
+    { name = "huggingface-hub" },
     { name = "kittenml" },
     { name = "numpy" },
     { name = "omnivoice" },
@@ -3020,6 +3021,7 @@ dependencies = [
     { name = "transformers" },
     { name = "voicelab-core" },
     { name = "voicelab-models" },
+    { name = "websockets" },
 ]
 
 [package.optional-dependencies]
@@ -3037,6 +3039,7 @@ requires-dist = [
     { name = "accelerate", specifier = ">=1.15.0" },
     { name = "en-core-web-sm", marker = "extra == 'mlx'", url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" },
     { name = "espeakng-loader", marker = "extra == 'mlx'", specifier = "==0.2.4" },
+    { name = "huggingface-hub", specifier = "==2.4.0" },
     { name = "kittenml", specifier = "==0.9.7" },
     { name = "misaki", extras = ["en", "ja", "zh"], marker = "extra == 'mlx'", directory = "third_party/misaki" },
     { name = "mlx-audio", marker = "platform_machine == 'arm64' and sys_platform == 'darwin' and extra == 'mlx'", specifier = "==0.6.3" },
@@ -3053,6 +3056,7 @@ requires-dist = [
     { name = "transformers", specifier = "==5.22.1" },
     { name = "voicelab-core", editable = "packages/voicelab-core" },
     { name = "voicelab-models", editable = "packages/voicelab-models" },
+    { name = "websockets", specifier = "==17.4" },
 ]
 provides-extras = ["mlx"]
 

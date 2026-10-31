@@ -1,0 +1,15 @@
+Qwen Omni MLX adaptation
+
+The decoding loops and speech conditioning in this directory adapt mlx-vlm 0.7.11:
+https://github.com/Blaizzy/mlx-vlm/tree/v0.7.11/mlx_vlm/models/qwen3_omni_moe
+Pinned source commit: 527c513a0768245644a70266a22126d880767b18.
+Original files: qwen3_omni_moe.py, talker.py, code2wav.py.
+Copyright and permission terms are preserved in LICENSE-mlx-vlm.
+
+Voice Lab adds cancellation, explicit EOS evidence, generation controls, special-token
+suppression, and bounded causal codec windows. Model architecture and learned
+parameters remain supplied by the installed mlx-vlm package and pinned checkpoint.
+
+Official sampling behavior was checked against Transformers 5.22.1:
+https://github.com/huggingface/transformers/tree/v5.22.1/src/transformers/models/qwen3_omni_moe
+The Qwen model and checkpoint use Apache-2.0; model weights are not redistributed here.

@@ -8,6 +8,7 @@ interface StreamOptions<Event> {
   readonly path: string;
   readonly request: object;
   readonly signal: AbortSignal;
+  readonly timeoutMs?: number;
   readonly decode: (raw: string) => Event;
   readonly onMessage: (message: Event, sender: SessionSender) => Outcome | undefined;
   readonly onAudio: (pcm: ArrayBuffer) => void;
@@ -15,6 +16,10 @@ interface StreamOptions<Event> {
 /** Own all handlers and timers for one connection; never reconnect inference implicitly. */
 export function streamSession<Event>(options: StreamOptions<Event>): Promise<Outcome> {
   options.signal.throwIfAborted();
+  const timeoutMs = options.timeoutMs ?? 180_000;
+  if (!Number.isFinite(timeoutMs) || timeoutMs < 1 || timeoutMs > 1_800_000) {
+    throw new Error("Session timeout must be between 1 ms and 30 minutes.");
+  }
   return new Promise((resolve, reject) => {
     const url = new URL(options.path, location.href);
     url.protocol = location.protocol === "https:" ? "wss:" : "ws:";
@@ -31,7 +36,7 @@ export function streamSession<Event>(options: StreamOptions<Event>): Promise<Out
       if (result instanceof Error) reject(result); else resolve(result);
     };
     const abort = (): void => finish(new DOMException("Session cancelled", "AbortError"));
-    const timeout = setTimeout(() => finish(new Error("Session timed out")), 180_000);
+    const timeout = setTimeout(() => finish(new Error("Session timed out")), timeoutMs);
     const send = (value: string | ArrayBuffer): void => {
       if (settled) return;
       if (socket.readyState !== WebSocket.OPEN || socket.bufferedAmount > 64_000) {

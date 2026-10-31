@@ -1,5 +1,5 @@
 export type AddedSynthesisId = "phonon" | "kokoro" | "audio8" | "ming_tts" | "drama" | "maya" | "omnivoice" | "kitten";
-export type ModelId = "nemotron" | "sesame" | "breeze" | AddedSynthesisId | "personaplex" | "ming_audio";
+export type ModelId = "nemotron" | "sesame" | "breeze" | AddedSynthesisId | "personaplex" | "ming_audio" | "qwen_omni" | "minicpm";
 
 interface ModelBase {
   readonly label: string;
@@ -44,8 +44,17 @@ export interface MingAudioModel extends ModelBase {
   readonly id: "ming_audio"; readonly kind: "conversation";
   readonly endpoint: "/api/ming_audio/session"; readonly outputSampleRate: 44100;
 }
+export interface QwenOmniModel extends ModelBase {
+  readonly id: "qwen_omni"; readonly kind: "conversation";
+  readonly endpoint: "/api/qwen_omni/session"; readonly outputSampleRate: 24000;
+}
+export interface MiniCPMModel extends ModelBase {
+  readonly id: "minicpm"; readonly kind: "duplex";
+  readonly endpoint: "/api/minicpm/session";
+  readonly inputSampleRate: 16000; readonly outputSampleRate: 24000;
+}
 export type SynthesisModel = SesameModel | BreezeModel | AddedSynthesisModel;
-export type Model = DuplexModel | SynthesisModel | PersonaPlexModel | MingAudioModel;
+export type Model = DuplexModel | SynthesisModel | PersonaPlexModel | MingAudioModel | QwenOmniModel | MiniCPMModel;
 export type Phase = "idle" | "preparing" | "running" | "draining" | "stopping";
 export interface Measurement {
   readonly basis: "input" | "output";

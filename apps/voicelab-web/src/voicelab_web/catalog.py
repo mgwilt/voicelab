@@ -12,10 +12,12 @@ from voicelab_web.catalog_types import (
     MayaInfo,
     MingAudioInfo,
     MingTTSInfo,
+    MiniCPMInfo,
     NemotronInfo,
     OmniVoiceInfo,
     PersonaPlexInfo,
     PhononInfo,
+    QwenOmniInfo,
     SesameInfo,
 )
 from voicelab_web.catalog_types import ModelId as ModelId
@@ -115,5 +117,19 @@ def models(config: ServerConfig) -> tuple[ModelInfoUnion, ...]:
             backend="MLX",
             available=apple,
             reason=None if apple else "This runtime requires Apple Silicon and MLX.",
+        ),
+        QwenOmniInfo(
+            label="Qwen3-Omni 30B-A3B",
+            description="Multilingual audio questions and streamed spoken answers.",
+            backend="MLX · 4-bit",
+            available=apple,
+            reason=None if apple else "This runtime requires Apple Silicon and MLX.",
+        ),
+        MiniCPMInfo(
+            label="MiniCPM-o 4.5",
+            description="Live and recorded conversations with spoken answers.",
+            backend="llama.cpp · Metal",
+            available=apple,
+            reason=None if apple else "This runtime requires Apple Silicon and Metal.",
         ),
     )

@@ -6,7 +6,9 @@ from fastapi import FastAPI, WebSocket
 
 from voicelab_web.catalog_types import ModelId
 from voicelab_web.models.ming_audio.session import serve_session as serve_ming
+from voicelab_web.models.minicpm.session import serve_session as serve_minicpm
 from voicelab_web.models.personaplex.session import serve_session as serve_personaplex
+from voicelab_web.models.qwen_omni.session import serve_session as serve_qwen
 from voicelab_web.transport.lease import SessionLease
 
 
@@ -30,3 +32,5 @@ def install(
 
     add("personaplex", serve_personaplex)
     add("ming_audio", serve_ming)
+    add("qwen_omni", serve_qwen)
+    add("minicpm", serve_minicpm)

@@ -15,6 +15,8 @@ import { createPanel as omnivoicePanel } from "./omnivoice/panel.js";
 import { createPanel as kittenPanel } from "./kitten/panel.js";
 import { PersonaPlexPanel } from "./personaplex/panel.js";
 import { MingAudioPanel } from "./ming_audio/panel.js";
+import { QwenOmniPanel } from "./qwen_omni/panel.js";
+import { MiniCPMPanel } from "./minicpm/panel.js";
 
 export function createPanel(model: Model): ControlPanel {
   switch (model.id) {
@@ -31,6 +33,8 @@ export function createPanel(model: Model): ControlPanel {
     case "kitten": return kittenPanel(model);
     case "personaplex": return new PersonaPlexPanel(model);
     case "ming_audio": return new MingAudioPanel(model);
+    case "qwen_omni": return new QwenOmniPanel(model);
+    case "minicpm": return new MiniCPMPanel(model);
     default: return unreachable(model);
   }
 }

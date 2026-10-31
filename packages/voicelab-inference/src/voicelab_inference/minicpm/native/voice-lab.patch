@@ -1,0 +1,622 @@
+diff --git a/tools/omni/omni.cpp b/tools/omni/omni.cpp
+index d3d351b..c75339e 100644
+--- a/tools/omni/omni.cpp
++++ b/tools/omni/omni.cpp
+@@ -334,6 +334,14 @@ struct LLMOut {
+     TTSThreadInfo(int maxQueueSize) : MAX_QUEUE_SIZE(maxQueueSize) {}
+ };
+ 
++// Voice Lab: keep popped jobs visible to drain until compute and delivery finish.
++struct OmniWorkerActivity {
++    std::atomic<bool> & active;
++    explicit OmniWorkerActivity(std::atomic<bool> & value) : active(value) {}
++    void begin() { active.store(true); }
++    ~OmniWorkerActivity() { active.store(false); }
++};
++
+ // 前向声明
+ static void kv_cache_slide_window(struct omni_context* ctx_omni, common_params* params, int chunk_size);
+ 
+@@ -4628,11 +4636,11 @@ bool omni_tts_queues_empty(struct omni_context * ctx_omni) {
+     bool tts_empty = true, t2w_empty = true;
+     if (ctx_omni->tts_thread_info) {
+         std::lock_guard<std::mutex> lock(ctx_omni->tts_thread_info->mtx);
+-        tts_empty = ctx_omni->tts_thread_info->queue.empty();
++        tts_empty = ctx_omni->tts_thread_info->queue.empty() && !ctx_omni->tts_processing.load();
+     }
+     if (ctx_omni->t2w_thread_info) {
+         std::lock_guard<std::mutex> lock(ctx_omni->t2w_thread_info->mtx);
+-        t2w_empty = ctx_omni->t2w_thread_info->queue.empty();
++        t2w_empty = ctx_omni->t2w_thread_info->queue.empty() && !ctx_omni->t2w_processing.load();
+     }
+     return tts_empty && t2w_empty;
+ }
+@@ -5279,17 +5287,20 @@ static bool generate_audio_tokens_local_simplex(
+     
+     if (!ctx_omni->ctx_tts_llama || !ctx_omni->model_tts) {
+         LOG_ERR("TTS Simplex: TTS model not loaded\n");
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     
+     if (!ctx_omni->head_code_weight || !ctx_omni->emb_code_weight) {
+         LOG_ERR("TTS Simplex: TTS weights not loaded\n");
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     
+     if (merged_embeddings.size() != (size_t)(n_tokens * tts_n_embd)) {
+         LOG_ERR("TTS Simplex: merged_embeddings size mismatch: %zu != %d * %d\n",
+                 merged_embeddings.size(), n_tokens, tts_n_embd);
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     
+@@ -5308,7 +5319,9 @@ static bool generate_audio_tokens_local_simplex(
+     // 🔧 [与 Python 对齐] 只添加 audio_bos（总是添加）
+     // Python: condition = torch.cat([condition, self.audio_bos_embeds], dim=1)
+     std::vector<float> audio_bos_embed(tts_n_embd, 0.0f);
+-    if (tts_emb_text(ctx_omni, audio_bos_token_id, audio_bos_embed.data(), tts_n_embd)) {
++    if (n_tokens == 0 && is_final_text_chunk) {
++        // Empty terminal text chunk only needs the final acoustic phase.
++    } else if (tts_emb_text(ctx_omni, audio_bos_token_id, audio_bos_embed.data(), tts_n_embd)) {
+         condition_with_bos.insert(condition_with_bos.end(), 
+                                   audio_bos_embed.begin(), audio_bos_embed.end());
+         extra_tokens++;
+@@ -5316,6 +5329,8 @@ static bool generate_audio_tokens_local_simplex(
+                             chunk_idx, condition_with_bos.size() / tts_n_embd);
+     } else {
+         LOG_ERR("TTS Simplex: failed to get audio_bos embedding\n");
++        ctx_omni->speech_failed.store(true);
++        return false;
+     }
+     int n_tokens_with_bos = n_tokens + extra_tokens;  // 包含 audio_bos
+     
+@@ -5343,10 +5358,11 @@ static bool generate_audio_tokens_local_simplex(
+     }
+     
+     // 使用包含 audio_bos 的 condition 进行 prefill
+-    if (!prefill_with_emb_tts(ctx_omni, params, 
++    if (n_tokens_with_bos > 0 && !prefill_with_emb_tts(ctx_omni, params,
+                               condition_with_bos.data(),
+                               n_tokens_with_bos, params->n_batch, &n_past_tts)) {
+         LOG_ERR("TTS Simplex: prefill_with_emb_tts failed\n");
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     print_with_timestamp("TTS Simplex: prefill completed, n_past_tts=%d\n", n_past_tts);
+@@ -5364,6 +5380,7 @@ static bool generate_audio_tokens_local_simplex(
+     struct common_sampler * tts_sampler = common_sampler_init(ctx_omni->model_tts, tts_sampling);
+     if (!tts_sampler) {
+         LOG_ERR("TTS Simplex: failed to create sampler\n");
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     print_with_timestamp("TTS Simplex: sampler created\n");
+@@ -5381,10 +5398,12 @@ static bool generate_audio_tokens_local_simplex(
+     // Phase 1: 不带 text_eos_embed，正常生成 audio tokens 直到 EOS
+     // Phase 2 (仅 is_final_text_chunk): 注入 text_eos_embed + audio_bos，生成最后一批 audio tokens
+     // 这样 text_eos_embed 只影响最后一批 audio tokens，而非整个 text chunk 的所有 audio
+-    bool need_phase2 = false;  // 是否需要第二阶段生成
++    bool phase1_eos = n_tokens == 0 && is_final_text_chunk;
++    bool phase2_eos = false;
++    bool need_phase2 = phase1_eos;  // 是否需要第二阶段生成
+     
+     // ===== Phase 1: 正常生成（不带 text_eos_embed） =====
+-    for (int t = 0; t < max_audio_tokens; ++t) {
++    for (int t = 0; !phase1_eos && t < max_audio_tokens; ++t) {
+         // 🔧 [P0-立即打断] 检测 break_event，立即停止 TTS 生成
+         if (ctx_omni->break_event.load()) {
+             print_with_timestamp("TTS Simplex: break_event detected at step %d, stopping immediately\n", t);
+@@ -5423,6 +5442,7 @@ static bool generate_audio_tokens_local_simplex(
+         // 🔧 [与 Python 对齐] EOS token 检测
+         bool is_eos = (relative_idx == num_audio_tokens - 1);
+         if (is_eos) {
++            phase1_eos = true;
+             print_with_timestamp("TTS Simplex Phase1: EOS token at step %d\n", t + 1);
+             output_audio_tokens.pop_back();
+             ctx_omni->tts_all_generated_tokens.pop_back();
+@@ -5525,6 +5545,7 @@ static bool generate_audio_tokens_local_simplex(
+                 
+                 bool is_eos = (relative_idx == num_audio_tokens - 1);
+                 if (is_eos) {
++                    phase2_eos = true;
+                     print_with_timestamp("TTS Simplex Phase2: EOS at step %d (final end)\n", t2 + 1);
+                     output_audio_tokens.pop_back();
+                     ctx_omni->tts_all_generated_tokens.pop_back();
+@@ -5635,7 +5656,10 @@ static bool generate_audio_tokens_local_simplex(
+         }
+     }
+     
+-    return !output_audio_tokens.empty();
++    const bool complete = phase1_eos && (!is_final_text_chunk || phase2_eos);
++    if (!complete) ctx_omni->speech_failed.store(true);
++    if (is_final_text_chunk && complete) ctx_omni->speech_eos.store(true);
++    return complete;
+ }
+ 
+ // ==============================================================================
+@@ -5661,18 +5685,22 @@ static bool generate_audio_tokens_local(
+     // 因为我们会添加 text_eos_embed 和 audio_bos，让 TTS 生成最后的 audio tokens
+     if (n_tokens < 0) {
+         LOG_ERR("TTS Local: invalid n_tokens=%d\n", n_tokens);
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     if (n_tokens == 0 && !is_end_of_turn) {
+         LOG_ERR("TTS Local: n_tokens=0 but is_end_of_turn=false, nothing to generate\n");
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     if (n_tokens > 10000) {
+         LOG_ERR("TTS Local: n_tokens=%d seems too large, likely data corruption\n", n_tokens);
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     if (tts_n_embd <= 0 || tts_n_embd > 10000) {
+         LOG_ERR("TTS Local: invalid tts_n_embd=%d\n", tts_n_embd);
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     
+@@ -5687,19 +5715,22 @@ static bool generate_audio_tokens_local(
+     // 🔧 [单双工适配] max_audio_tokens:
+     // - 双工模式: 26 (与 Python 对齐，max_token_per_chunk = 25 + 1)
+     // - 单工模式: 500 (允许更长的生成，靠 EOS 结束)
+-    const int max_audio_tokens = ctx_omni->duplex_mode ? 26 : 500;
++    // Voice Lab: a final text chunk must decode until acoustic EOS.
++    const int max_audio_tokens = ctx_omni->duplex_mode && !is_end_of_turn ? 26 : 500;
+     print_with_timestamp("TTS Local: mode=%s, max_audio_tokens=%d\n", 
+                          ctx_omni->duplex_mode ? "duplex" : "simplex", max_audio_tokens);
+     
+     // Verify TTS model is loaded
+     if (!ctx_omni->ctx_tts_llama || !ctx_omni->model_tts) {
+         LOG_ERR("TTS Local: TTS model not loaded\n");
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     
+     // Verify TTS weights are loaded
+     if (!ctx_omni->head_code_weight || !ctx_omni->emb_code_weight) {
+         LOG_ERR("TTS Local: TTS weights not loaded (head_code or emb_code)\n");
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     
+@@ -5707,6 +5738,7 @@ static bool generate_audio_tokens_local(
+     if (merged_embeddings.size() != (size_t)(n_tokens * tts_n_embd)) {
+         LOG_ERR("TTS Local: merged_embeddings size mismatch: %zu != %d * %d\n",
+                 merged_embeddings.size(), n_tokens, tts_n_embd);
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     
+@@ -5730,6 +5762,8 @@ static bool generate_audio_tokens_local(
+                                 chunk_idx, condition_with_bos.size() / tts_n_embd);
+         } else {
+             LOG_WRN("TTS Local: failed to get text_eos embedding\n");
++            ctx_omni->speech_failed.store(true);
++            return false;
+         }
+     }
+     
+@@ -5744,6 +5778,8 @@ static bool generate_audio_tokens_local(
+                             chunk_idx, condition_with_bos.size() / tts_n_embd);
+     } else {
+         LOG_ERR("TTS Local: failed to get audio_bos embedding\n");
++        ctx_omni->speech_failed.store(true);
++        return false;
+     }
+     int n_tokens_with_bos = n_tokens + extra_tokens;  // 包含 text_eos_embed（如果有）和 audio_bos
+     
+@@ -5780,6 +5816,7 @@ static bool generate_audio_tokens_local(
+                               condition_with_bos.data(),
+                               n_tokens_with_bos, params->n_batch, &n_past_tts)) {
+         LOG_ERR("TTS Local: prefill_with_emb_tts failed\n");
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     print_with_timestamp("TTS Local: prefill completed, n_past_tts=%d\n", n_past_tts);
+@@ -5798,6 +5835,7 @@ static bool generate_audio_tokens_local(
+     struct common_sampler * tts_sampler = common_sampler_init(ctx_omni->model_tts, tts_sampling);
+     if (!tts_sampler) {
+         LOG_ERR("TTS Local: failed to create sampler\n");
++        ctx_omni->speech_failed.store(true);
+         return false;
+     }
+     
+@@ -5828,6 +5866,7 @@ static bool generate_audio_tokens_local(
+     bool first_chunk_pushed = false;
+     std::vector<int32_t> stream_buffer;
+     
++    bool acoustic_eos = false;
+     for (int t = 0; t < max_audio_tokens; ++t) {
+         // 🔧 [差异1修复] 计算 force_no_eos
+         // Python generate_chunk: if force_no_stop or t < min_new_tokens: logits[:, eos_token] = -torch.inf
+@@ -5854,6 +5893,7 @@ static bool generate_audio_tokens_local(
+         );
+         
+         if (sampled_token_abs == 0) {
++            ctx_omni->speech_failed.store(true);
+             LOG_ERR("TTS Local: sample_tts_token failed at step %d\n", t);
+             break;
+         }
+@@ -5861,6 +5901,7 @@ static bool generate_audio_tokens_local(
+         // Convert to relative index and check EOS
+         int relative_idx = sampled_token_abs - audio_bos_token_id;
+         if (relative_idx < 0 || relative_idx >= num_audio_tokens) {
++            ctx_omni->speech_failed.store(true);
+             LOG_ERR("TTS Local: invalid token ID %d (relative_idx: %d) at step %d\n",
+                     sampled_token_abs, relative_idx, t);
+             break;
+@@ -5878,6 +5919,7 @@ static bool generate_audio_tokens_local(
+         // 如果是 EOS，立即从 buffer 中移除，防止被推送到 T2W
+         bool is_eos = (relative_idx == num_audio_tokens - 1);
+         if (is_eos) {
++            acoustic_eos = true;
+             output_audio_tokens.pop_back();
+             stream_buffer.pop_back();
+             chunk_generated_tokens.pop_back();
+@@ -5957,7 +5999,11 @@ static bool generate_audio_tokens_local(
+         }
+     }
+     
+-    return !output_audio_tokens.empty();
++    if (is_end_of_turn) {
++        if (acoustic_eos) ctx_omni->speech_eos.store(true);
++        else ctx_omni->speech_failed.store(true);
++    }
++    return !ctx_omni->speech_failed.load();
+ }
+ 
+ // Helper function to play WAV file (not available on iOS)
+@@ -6260,6 +6306,7 @@ void tts_thread_func_duplex(struct omni_context * ctx_omni, common_params *param
+ 
+     // Multi Round Persistent Loop
+     while(tts_thread_running) {
++        OmniWorkerActivity activity(ctx_omni->tts_processing);
+         if (!tts_thread_running) {
+             break;
+         }
+@@ -6329,6 +6376,7 @@ void tts_thread_func_duplex(struct omni_context * ctx_omni, common_params *param
+             
+             // 累积所有队列中的数据
+             while (!queue.empty()) {
++                activity.begin();
+                 LLMOut *llm_out = queue.front();
+                 llm_finish |= llm_out->llm_finish;
+                 bool item_is_eot = llm_out->is_end_of_turn;
+@@ -6944,6 +6992,7 @@ void tts_thread_func(struct omni_context * ctx_omni, common_params *params) {
+ 
+     // Multi Round Persistent Loop
+     while(tts_thread_running) {
++        OmniWorkerActivity activity(ctx_omni->tts_processing);
+         
+         if (!tts_thread_running) {
+             break;
+@@ -7026,6 +7075,7 @@ void tts_thread_func(struct omni_context * ctx_omni, common_params *params) {
+             // 
+             // Python 逻辑：每次只处理一个 chunk，生成对应的 audio tokens
+             if (!queue.empty()) {
++                activity.begin();
+                 LLMOut *llm_out = queue.front();
+                 llm_finish |= llm_out->llm_finish;
+                 // 只取一个 chunk 的数据
+@@ -7140,6 +7190,12 @@ void tts_thread_func(struct omni_context * ctx_omni, common_params *params) {
+         // 🔧 [修复] 空 response + llm_finish 的提前检查
+         // 必须在 tokenize 之前检查，因为空字符串 tokenize 可能返回非空结果（BOS token）
+         if (response.empty() && llm_finish) {
++            if (chunk_idx > 0 && !ctx_omni->speech_eos.load() && !ctx_omni->speech_failed.load()) {
++                std::vector<int32_t> final_tokens;
++                generate_audio_tokens_local_simplex(ctx_omni, params, {}, 0,
++                    llama_n_embd(ctx_omni->model_tts), chunk_idx, final_tokens,
++                    tts_wav_output_dir, true);
++            }
+             // 🔧 [修复] 当收到 llm_finish=true 但没有新数据时，
+             // 需要 flush tts_token_buffer 中剩余的 tokens，并发送 is_final=true 到 T2W
+             print_with_timestamp("TTS: received llm_finish=true with no data, finalizing (tts_token_buffer=%zu)\n",
+@@ -7478,9 +7534,12 @@ void tts_thread_func(struct omni_context * ctx_omni, common_params *params) {
+                     // This is separate from the token2wav sliding window
+                 } else {
+                     LOG_ERR("TTS Local: failed for chunk %d\n", current_chunk_idx);
++                    ctx_omni->speech_failed.store(true);
+                 }
+             }
+             
++            if (!tts_success) ctx_omni->speech_failed.store(true);
++
+             // Always increment chunk_idx after processing
+             // This ensures each chunk gets its own directory and data is not overwritten
+             ++chunk_idx;
+@@ -8640,6 +8699,7 @@ void t2w_thread_func_python(struct omni_context * ctx_omni, common_params *param
+     }
+     
+     while (t2w_thread_running) {
++        OmniWorkerActivity activity(ctx_omni->t2w_processing);
+         // 检测打断事件
+         if (ctx_omni->break_event.load()) {
+             std::lock_guard<std::mutex> lock(mtx);
+@@ -8686,6 +8746,7 @@ void t2w_thread_func_python(struct omni_context * ctx_omni, common_params *param
+         int received_round_idx = -1;  // 🔧 从队列中获取的 round_idx
+         
+         while (!queue.empty()) {
++            activity.begin();
+             T2WOut *t2w_out = queue.front();
+             queue.pop();
+             new_tokens.insert(new_tokens.end(), t2w_out->audio_tokens.begin(), t2w_out->audio_tokens.end());
+@@ -8928,6 +8989,7 @@ void t2w_thread_func_cpp(struct omni_context * ctx_omni, common_params *params)
+     const int sample_rate = omni::flow::Token2Wav::kSampleRate;
+     
+     while (t2w_thread_running) {
++        OmniWorkerActivity activity(ctx_omni->t2w_processing);
+         // 🔧 [P0-打断检测] 检测 break_event 并清空队列
+         if (ctx_omni->break_event.load()) {
+             std::lock_guard<std::mutex> lock(mtx);
+@@ -8981,6 +9043,7 @@ void t2w_thread_func_cpp(struct omni_context * ctx_omni, common_params *params)
+         std::chrono::steady_clock::time_point oldest_enqueue_time = dequeue_time;
+         bool have_enqueue_time = false;
+         while (!queue.empty()) {
++            activity.begin();
+             T2WOut *t2w_out = queue.front();
+             queue.pop();
+             if (!have_enqueue_time || t2w_out->enqueue_time < oldest_enqueue_time) {
+@@ -9057,6 +9120,7 @@ void t2w_thread_func_cpp(struct omni_context * ctx_omni, common_params *params)
+         
+         // Check if token2wav is initialized
+         if (!ctx_omni->token2wav_initialized || !ctx_omni->token2wav_session) {
++            ctx_omni->speech_failed.store(true);
+             continue;
+         }
+         
+@@ -9154,6 +9218,7 @@ void t2w_thread_func_cpp(struct omni_context * ctx_omni, common_params *params)
+                 }
+             } else {
+                 LOG_ERR("T2W线程: feed_window 失败\n");
++                ctx_omni->speech_failed.store(true);
+             }
+             
+             // Slide window by CHUNK_SIZE (25), keep last PRE_LOOKAHEAD (3) for overlap
+@@ -10860,6 +10925,11 @@ bool stream_decode(struct omni_context * ctx_omni, std::string debug_dir, int ro
+     }
+     LOG_INF("<user>%s\n", ctx_omni->params->prompt.c_str());
+     LOG_INF("<assistant>");
++    if (!ctx_omni->duplex_mode) {
++        ctx_omni->current_turn_ended = false;
++        ctx_omni->speech_eos.store(false);
++        ctx_omni->speech_failed.store(false);
++    }
+     const int max_tgt_len = ctx_omni->params->n_predict < 0 ? ctx_omni->params->n_ctx : ctx_omni->params->n_predict;
+     print_with_timestamp("LLM decode: max_tgt_len = %d, n_predict = %d, n_ctx = %d\n", 
+                          max_tgt_len, ctx_omni->params->n_predict, ctx_omni->params->n_ctx);
+@@ -10923,7 +10993,7 @@ bool stream_decode(struct omni_context * ctx_omni, std::string debug_dir, int ro
+             // 🔧 [重要] 循环直到收集到 step_size 个有效 token，而不是生成 step_size 个 token
+             // 🔧 [P0-打断检测] 检测 break_event，支持双工模式下的打断
+             // 🔧 [P2-chunk限制] 检测 max_new_speak_tokens_per_chunk，便于及时响应打断
+-            while (jl < step_size && !llm_finish && !ctx_omni->break_event.load() && !chunk_limit_reached) {
++            while (jl < step_size && il + total_tokens_generated < max_tgt_len && !llm_finish && !ctx_omni->break_event.load() && !chunk_limit_reached) {
+                 // streaming llm
+                 const char * tmp = nullptr;
+                 float * hidden_states = nullptr;
+@@ -10982,6 +11052,8 @@ bool stream_decode(struct omni_context * ctx_omni, std::string debug_dir, int ro
+                     llm_first_token_logged = true;
+                 }
+                 if (tmp == nullptr) {
++                    llm_finish = true;
++                    ctx_omni->speech_failed.store(true);
+                     LOG_ERR("llama_loop returned nullptr!");
+                     break;
+                 }
+@@ -11100,6 +11172,10 @@ bool stream_decode(struct omni_context * ctx_omni, std::string debug_dir, int ro
+             current_chunk_tokens = 0;
+         }
+         
++        // Voice Lab: close this bounded text stream without claiming model EOS.
++        if (il + total_tokens_generated >= max_tgt_len) llm_finish = true;
++        if (llm_finish && !ctx_omni->duplex_mode) ctx_omni->llm_generation_done.store(true);
++
+         // add </unit> token after each chunk
+         if (ctx_omni->duplex_mode && ctx_omni->special_token_unit_end >= 0) {
+             std::lock_guard<std::mutex> llama_lock(ctx_omni->llama_mtx);
+@@ -11627,19 +11703,12 @@ bool omni_duplex_drain_tts_audio(struct omni_context * ctx_omni,
+     if (!ctx_omni) return false;
+     if (!ctx_omni->async || !ctx_omni->use_tts) return true;
+ 
+-    const int tick_ms = 100;
+-    const int idle_ticks_required = std::max(1, idle_ms / tick_ms);
+-    const int max_ticks            = std::max(idle_ticks_required, max_wait_ms / tick_ms);
+-
+-    int idle_ticks = 0;
+-    for (int i = 0; i < max_ticks; ++i) {
+-        if (omni_tts_queues_empty(ctx_omni)) {
+-            if (++idle_ticks >= idle_ticks_required) return true;
+-        } else {
+-            idle_ticks = 0;
+-        }
+-        std::this_thread::sleep_for(std::chrono::milliseconds(tick_ms));
+-    }
++    (void) idle_ms; // Kept for the upstream API; completion is not a time heuristic.
++    const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(max_wait_ms);
++    do {
++        if (omni_tts_queues_empty(ctx_omni)) return true;
++        std::this_thread::sleep_for(std::chrono::milliseconds(10));
++    } while (std::chrono::steady_clock::now() < deadline);
+     return false;
+ }
+ 
+diff --git a/tools/omni/omni.h b/tools/omni/omni.h
+index 8f15233..6d09ca7 100644
+--- a/tools/omni/omni.h
++++ b/tools/omni/omni.h
+@@ -283,6 +283,11 @@ struct omni_context {
+     // 当前轮次是否已结束（用于决策是否允许切换到 listen 状态）
+     // Python: self.current_turn_ended
+     bool current_turn_ended = true;
++    // Voice Lab: text EOS, acoustic EOS, and drained PCM are separate boundaries.
++    std::atomic<bool> speech_eos{false};
++    std::atomic<bool> speech_failed{false};
++    std::atomic<bool> tts_processing{false};
++    std::atomic<bool> t2w_processing{false};
+     
+     // 打断事件标志
+     // break_event: 打断当前生成，但保持会话活跃（用于双工模式的用户打断）
+diff --git a/tools/server/server-omni.cpp b/tools/server/server-omni.cpp
+index 851038a..c235145 100644
+--- a/tools/server/server-omni.cpp
++++ b/tools/server/server-omni.cpp
+@@ -114,11 +114,18 @@ int main(int argc, char ** argv) {
+     }
+ 
+     // HTTP server setup
+-#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
+-    httplib::SSLServer svr(params.ssl_file_cert.c_str(), params.ssl_file_key.c_str());
+-#else
++// Voice Lab owns TLS at its public boundary; this private listener is loopback only.
+     httplib::Server svr;
+-#endif
++
++    // Voice Lab: the private process accepts only its owner's bearer credential.
++    svr.set_pre_routing_handler([](const httplib::Request & req, httplib::Response & res) {
++        const char * token = std::getenv("VOICELAB_NATIVE_TOKEN");
++        if (token == nullptr || req.get_header_value("Authorization") != std::string("Bearer ") + token) {
++            res.status = 403;
++            return httplib::Server::HandlerResponse::Handled;
++        }
++        return httplib::Server::HandlerResponse::Unhandled;
++    });
+ 
+     omni_server_state state;
+ 
+@@ -411,7 +418,9 @@ int main(int argc, char ** argv) {
+     });
+ 
+     // start server
+-    svr.listen("0.0.0.0", params.port);
++    if (!svr.listen("127.0.0.1", params.port)) {
++        return 1;
++    }
+ 
+     // cleanup
+     {
+diff --git a/tools/server/ws_handler.cpp b/tools/server/ws_handler.cpp
+index 5cf6427..6cafd77 100644
+--- a/tools/server/ws_handler.cpp
++++ b/tools/server/ws_handler.cpp
+@@ -224,7 +224,14 @@ static void reset_octx_for_session(omni_context * octx, const ParsedSessionInit
+     }
+ 
+     if (!init.system_prompt.empty()) {
+-        octx->omni_assistant_prompt = init.system_prompt;
++        if (duplex_mode) {
++            octx->omni_voice_clone_prompt = "<|im_start|>system\nStreaming Duplex Conversation! " + init.system_prompt + "\n<|audio_start|>";
++            octx->audio_voice_clone_prompt = octx->omni_voice_clone_prompt;
++            octx->omni_assistant_prompt = "<|audio_end|><|im_end|>\n";
++        } else {
++            octx->omni_assistant_prompt = "<|audio_end|>" + init.system_prompt + "<|im_end|>\n<|im_start|>user\n";
++        }
++        octx->audio_assistant_prompt = octx->omni_assistant_prompt;
+     }
+ }
+ 
+@@ -498,6 +505,10 @@ static void configure_turn_based_prompt(omni_context * octx,
+         octx->audio_assistant_prompt = "<|audio_end|>你的任务是用这种声音模式来当一个助手。请认真、高质量地回复用户的问题。请用高自然度的方式和用户聊天。你是由面壁智能开发的人工智能助手：面壁小钢炮。<|im_end|>\n<|im_start|>user\n";
+         octx->omni_voice_clone_prompt = "<|im_start|>system\n模仿音频样本的音色并生成新的内容。\n<|audio_start|>";
+         octx->omni_assistant_prompt = "<|audio_end|>你的任务是用这种声音模式来当一个助手。请认真、高质量地回复用户的问题。请用高自然度的方式和用户聊天。<|im_end|>\n<|im_start|>user\n";
++        if (!system_text.empty()) {
++            octx->omni_assistant_prompt = "<|audio_end|>" + system_text + "<|im_end|>\n<|im_start|>user\n";
++            octx->audio_assistant_prompt = octx->omni_assistant_prompt;
++        }
+         return;
+     }
+ 
+@@ -559,7 +570,14 @@ static omni_context * create_session_octx(common_params & params, const ParsedSe
+ 
+     // Voice clone / system prompt
+     if (!init.system_prompt.empty()) {
+-        octx->omni_assistant_prompt = init.system_prompt;
++        if (duplex_mode) {
++            octx->omni_voice_clone_prompt = "<|im_start|>system\nStreaming Duplex Conversation! " + init.system_prompt + "\n<|audio_start|>";
++            octx->audio_voice_clone_prompt = octx->omni_voice_clone_prompt;
++            octx->omni_assistant_prompt = "<|audio_end|><|im_end|>\n";
++        } else {
++            octx->omni_assistant_prompt = "<|audio_end|>" + init.system_prompt + "<|im_end|>\n<|im_start|>user\n";
++        }
++        octx->audio_assistant_prompt = octx->omni_assistant_prompt;
+     }
+     shared_octx = octx;
+ 
+@@ -775,6 +793,11 @@ void handle_ws_backend(httplib::ws::WebSocket & ws,
+             msg_type = msg.at("type").get<std::string>();
+         }
+ 
++        if (msg_type == "input.flush") {
++            const bool drained = omni_duplex_drain_tts_audio(octx, 120000, 3000);
++            send_event(json{{"type", "response.flush.done"}, {"drained", drained && !octx->speech_failed.load()}});
++            continue;
++        }
+         if (msg_type != "input.append") {
+             // Unknown or invalid type after init → fail-fast
+             LOG_ERR("WS /backend: unexpected message type '%s' from session %s\n",
+@@ -981,7 +1004,7 @@ void handle_ws_backend(httplib::ws::WebSocket & ws,
+                         octx->text_queue.pop_front();
+                     }
+ 
+-                    if (octx->text_done_flag && octx->text_queue.empty()) {
++                    if (octx->text_done_flag && octx->text_queue.empty() && frag.empty()) {
+                         break;
+                     }
+                 }
+@@ -1034,8 +1057,10 @@ void handle_ws_backend(httplib::ws::WebSocket & ws,
+                                              turn_vision_slices)));
+                 }
+             }
++            bool audio_drained = true;
+             if (parsed_input.use_tts_template) {
+-                if (!omni_duplex_drain_tts_audio(octx, /*max_wait_ms*/120000, /*idle_ms*/3000)) {
++                audio_drained = omni_duplex_drain_tts_audio(octx, /*max_wait_ms*/120000, /*idle_ms*/3000);
++                if (!audio_drained) {
+                     LOG_WRN("WS /backend: timed out waiting for TTS audio drain for session %s\n",
+                             session_id.c_str());
+                 }
+@@ -1065,7 +1090,7 @@ void handle_ws_backend(httplib::ws::WebSocket & ws,
+             // reason is a turn-completion reason (network §6.6); the listen
+             // decision is conveyed via the kind=listen delta above, not here.
+             send_event(make_response_done(session_id, response_id, full_text,
+-                                          full_audio_b64, "turn_end",
++                                          full_audio_b64, audio_drained && octx->current_turn_ended && octx->speech_eos.load() && !octx->speech_failed.load() ? "turn_end" : "incomplete",
+                                           done_metrics));
+ 
+         } else {
+@@ -1162,7 +1187,7 @@ void handle_ws_backend(httplib::ws::WebSocket & ws,
+                         octx->text_queue.pop_front();
+                     }
+ 
+-                    if (octx->text_done_flag && octx->text_queue.empty()) {
++                    if (octx->text_done_flag && octx->text_queue.empty() && frag.empty()) {
+                         break;
+                     }
+                 }
+@@ -1176,7 +1201,7 @@ void handle_ws_backend(httplib::ws::WebSocket & ws,
+                                                  elapsed_ms(t_generate_start),
+                                                  elapsed_ms(t_request_start), 0,
+                                                  turn_vision_slices)));
+-                        break; // Done for this input
++                        // Voice Lab: collect queued text until decode completion, even after LISTEN.
+                     } else if (frag == "__END_OF_TURN__") {
+                         // Turn ended — will be handled by response.done
+                     } else {
+@@ -1226,12 +1251,13 @@ void handle_ws_backend(httplib::ws::WebSocket & ws,
+                 std::lock_guard<std::mutex> lk(audio_state->mtx);
+                 emitted_audio = audio_state->emitted_audio;
+             }
+-            if (!full_text.empty() || emitted_audio) {
++            if (true) { // Voice Lab: acknowledge every input chunk, including pure listen.
++
+                 // Full-duplex speak responses also need an explicit completion
+                 // boundary; pure listen steps are represented by listen delta only.
+                 send_event(make_response_done(
+                     session_id, response_id, full_text, /*audio_base64*/"",
+-                    "turn_end",
++                    "step_end",
+                     make_runtime_metrics(octx, prefill_ms, generate_ms,
+                                          elapsed_ms(t_request_start), 0,
+                                          turn_vision_slices)));
