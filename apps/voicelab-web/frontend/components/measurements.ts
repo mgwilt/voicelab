@@ -37,7 +37,9 @@ export class Measurements {
     this.latencyLabel.textContent = value.latencyLabel;
     this.latency.textContent = value.latencyMs === null ? "—" : `${Math.round(value.latencyMs)} ms`;
     this.queue.textContent = value.backlogSeconds === null ? "N/A" : `${value.backlogSeconds.toFixed(2)} s`;
-    this.explanation.textContent = value.basis === "input"
+    this.explanation.textContent = value.latencyLabel === "Compute to first PCM"
+      ? "Input RTF = model and codec processing time ÷ microphone audio duration. Compute to first PCM sums processing time; it excludes live pacing, setup, network, and playback delay."
+      : value.basis === "input"
       ? "Input RTF = model processing time ÷ microphone audio duration. Frame p95 is processing latency; network and playback delay are separate."
       : "Output RTF = generation time ÷ generated audio duration. First PCM measures server audio readiness, not audible playback latency. Model loading is excluded.";
   }

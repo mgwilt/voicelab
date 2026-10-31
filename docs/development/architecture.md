@@ -31,8 +31,11 @@ voicelab_inference.<model>.<runtime>
 voicelab.<model>
 ```
 
-The current inference modules are `nemotron.mlx`, `sesame.torch`, and `breeze.mlx`.
+Examples of inference modules are `nemotron.mlx`, `sesame.torch`, and `breeze.mlx`.
 Keep model identity separate from runtime and device support.
+Shared reference-audio schemas live in `voicelab_models.audio`.
+Decoding, resampling, and temporary reference files live in `voicelab_inference.audio`.
+These modules must not import a model implementation.
 Add a runtime module only when an implementation exists.
 Do not create placeholder CUDA, TPU, or ANE directories.
 
@@ -48,6 +51,8 @@ One website session owns inference until device work and cleanup finish.
 
 Keep one root uv workspace, environment, and lockfile. Keep platform extras in the inference package.
 Use earlier projects as algorithm and evidence references. Adapt their code to this structure and retain attribution.
+An upstream dependency that needs a packaging patch can live under `third_party/`.
+Preserve its source, licenses, revision, and a list of changes. Keep lab adapters outside that directory.
 Do not import their separate applications, sites, environments, or incidental abstractions.
 
 Module dependency tests enforce these boundaries. Read [verification](verification.md) before a change is complete.

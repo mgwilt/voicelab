@@ -10,6 +10,8 @@ const models: readonly Model[] = [
     endpoint: "/api/nemotron/session", inputSampleRate: 16000, outputSampleRate: 22050 },
   { id: "sesame", kind: "synthesis", label: "Sesame", description: "TTS", backend: "PyTorch", available: true, reason: null,
     endpoint: "/api/sesame/session", outputSampleRate: 24000 },
+  { id: "ming_audio", kind: "conversation", label: "Ming Audio", description: "Audio and text tasks", backend: "MLX", available: true, reason: null,
+    endpoint: "/api/ming_audio/session", outputSampleRate: 44100 },
 ];
 
 function button(root: HTMLElement, label: string): HTMLButtonElement {
@@ -21,6 +23,7 @@ function button(root: HTMLElement, label: string): HTMLButtonElement {
 test("model picker uses accessible selected state and releases handlers", () => {
   const selected: string[] = [];
   const picker = new ModelPicker(models, model => selected.push(model.id));
+  expect([...picker.element.querySelectorAll(".tag")].map(tag => tag.textContent)).toEqual(["Live conversation", "Text to speech", "Audio and text"]);
   const first = picker.element.querySelector("button");
   if (first === null) throw new Error("Missing model card");
   picker.select("nemotron");
@@ -57,7 +60,7 @@ test("switching a running model cancels it before disposing its panel", async ()
   const lab = new Lab(models, create);
   await Promise.resolve();
   await Promise.resolve();
-  button(lab.element, "Start conversation").click();
+  button(lab.element, "Start test").click();
   const next = models[1];
   if (next === undefined) throw new Error("Missing model");
   await lab.select(next);

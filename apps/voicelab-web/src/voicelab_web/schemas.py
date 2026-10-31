@@ -1,5 +1,7 @@
 """Portable server configuration; personal values belong in .local/."""
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from voicelab_models.sesame.model import Device, Engine
@@ -15,3 +17,6 @@ class ServerConfig(BaseModel):
 
     sesame_device: Device = "cpu"
     sesame_engine: Engine = "direct-depth"
+    phonon_device: Literal["cpu", "mps", "cuda"] = "cpu"
+    omnivoice_device: Literal["cpu", "mps", "cuda"] = "cpu"
+    kitten_device: Literal["cpu", "mps", "cuda"] = "cpu"

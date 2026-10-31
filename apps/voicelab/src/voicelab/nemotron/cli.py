@@ -31,6 +31,8 @@ class Arguments(argparse.Namespace):
     seed: int
     trailing_silence: float
     workspace: Path
+    tools_json: Path | None
+    api_response_json: Path | None
 
 
 def main() -> int:
@@ -51,12 +53,33 @@ def main() -> int:
     run.add_argument("--seed", type=int, default=0)
     run.add_argument("--trailing-silence", type=float, default=3.0)
     run.add_argument("--workspace", type=Path, default=Path.cwd())
+    run.add_argument(
+        "--tools-json", type=Path, help="OpenAI-format tool definitions JSON"
+    )
+    run.add_argument(
+        "--api-response-json", type=Path, help="Supplied tool_name/response JSON"
+    )
     args = parser.parse_args(namespace=Arguments())
     if args.command == "doctor":
         return doctor()
+    settings = GenerationSettings(args.prompt, args.seed, args.trailing_silence)
+    if (args.tools_json is None) != (args.api_response_json is None):
+        parser.error("--tools-json and --api-response-json must be supplied together")
+    if args.tools_json is not None and args.api_response_json is not None:
+        from voicelab.nemotron.tool_experiments import (
+            read_tool_settings,
+            run_tool_experiment,
+        )
+
+        tools = read_tool_settings(args.tools_json, args.api_response_json)
+        print(
+            run_tool_experiment(
+                args.input, args.output, settings, tools, args.workspace
+            )
+        )
+        return 0
     from voicelab_inference.nemotron.mlx.runtime import NemotronMLX
 
-    settings = GenerationSettings(args.prompt, args.seed, args.trailing_silence)
     manifest = run_experiment(
         args.input,
         args.output,

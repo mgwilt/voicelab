@@ -2,52 +2,28 @@
 
 import platform
 import sys
-from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
-
+from voicelab_web.catalog_types import (
+    Audio8Info,
+    BreezeInfo,
+    DramaInfo,
+    KittenInfo,
+    KokoroInfo,
+    MayaInfo,
+    MingAudioInfo,
+    MingTTSInfo,
+    NemotronInfo,
+    OmniVoiceInfo,
+    PersonaPlexInfo,
+    PhononInfo,
+    SesameInfo,
+)
+from voicelab_web.catalog_types import ModelId as ModelId
+from voicelab_web.catalog_types import ModelInfoUnion as ModelInfoUnion
 from voicelab_web.schemas import ServerConfig
 
-ModelId = Literal["nemotron", "sesame", "breeze"]
 
-
-class ModelInfo(BaseModel):
-    model_config = ConfigDict(strict=True, frozen=True, extra="forbid")
-    label: str
-    description: str
-    backend: str
-    available: bool
-    reason: str | None = None
-
-
-class NemotronInfo(ModelInfo):
-    id: Literal["nemotron"] = "nemotron"
-    kind: Literal["duplex"] = "duplex"
-    input_sample_rate: Literal[16000] = 16000
-    output_sample_rate: Literal[22050] = 22050
-    endpoint: Literal["/api/nemotron/session"] = "/api/nemotron/session"
-
-
-class SesameInfo(ModelInfo):
-    id: Literal["sesame"] = "sesame"
-    kind: Literal["synthesis"] = "synthesis"
-    output_sample_rate: Literal[24000] = 24000
-    endpoint: Literal["/api/sesame/session"] = "/api/sesame/session"
-
-
-class BreezeInfo(ModelInfo):
-    id: Literal["breeze"] = "breeze"
-    kind: Literal["synthesis"] = "synthesis"
-    output_sample_rate: Literal[24000] = 24000
-    endpoint: Literal["/api/breeze/session"] = "/api/breeze/session"
-
-
-ModelInfoUnion = Annotated[
-    NemotronInfo | SesameInfo | BreezeInfo, Field(discriminator="id")
-]
-
-
-def models(config: ServerConfig) -> tuple[NemotronInfo, SesameInfo, BreezeInfo]:
+def models(config: ServerConfig) -> tuple[ModelInfoUnion, ...]:
     apple = sys.platform == "darwin" and platform.machine() == "arm64"
     return (
         NemotronInfo(
@@ -65,9 +41,79 @@ def models(config: ServerConfig) -> tuple[NemotronInfo, SesameInfo, BreezeInfo]:
         ),
         BreezeInfo(
             label="Breeze TTS",
-            description="Shape a voice with natural-language instructions.",
+            description="Design, clone, and direct a voice.",
             backend="MLX",
             available=apple,
             reason=None if apple else "This backend requires Apple Silicon and MLX.",
+        ),
+        PhononInfo(
+            label="Phonon 31M",
+            description="Streaming English speech with preset voices.",
+            backend="PyTorch",
+            available=True,
+            reason=None,
+        ),
+        KokoroInfo(
+            label="Kokoro 82M",
+            description="Multilingual speech with preset voices and blends.",
+            backend="MLX",
+            available=apple,
+            reason=None if apple else "This runtime requires Apple Silicon and MLX.",
+        ),
+        Audio8Info(
+            label="Audio8 Realistic 0.6B",
+            description="Multilingual speech and reference voice conditioning.",
+            backend="MLX",
+            available=apple,
+            reason=None if apple else "This runtime requires Apple Silicon and MLX.",
+        ),
+        MingTTSInfo(
+            label="Ming 3.0 TTS 0.5B",
+            description="Instruction-guided multilingual speech.",
+            backend="MLX",
+            available=apple,
+            reason=None if apple else "This runtime requires Apple Silicon and MLX.",
+        ),
+        DramaInfo(
+            label="Fish Audio Drama 3",
+            description="Expressive speech with multiple speaker tags.",
+            backend="MLX",
+            available=apple,
+            reason=None if apple else "This runtime requires Apple Silicon and MLX.",
+        ),
+        MayaInfo(
+            label="Maya 2 Native",
+            description="Multilingual English and Indic speech.",
+            backend="MLX",
+            available=apple,
+            reason=None if apple else "This runtime requires Apple Silicon and MLX.",
+        ),
+        OmniVoiceInfo(
+            label="OmniVoice",
+            description="Diffusion speech synthesis with voice instructions.",
+            backend="PyTorch",
+            available=True,
+            reason=None,
+        ),
+        KittenInfo(
+            label="KittenTTS 2",
+            description="Speech with preset voices and expression controls.",
+            backend="PyTorch",
+            available=True,
+            reason=None,
+        ),
+        PersonaPlexInfo(
+            label="PersonaPlex 7B",
+            description="Listen and speak at the same time.",
+            backend="MLX",
+            available=apple,
+            reason=None if apple else "This runtime requires Apple Silicon and MLX.",
+        ),
+        MingAudioInfo(
+            label="Ming 3.0 Audio Tiny",
+            description="Speech, transcription, audio understanding, and text chat.",
+            backend="MLX",
+            available=apple,
+            reason=None if apple else "This runtime requires Apple Silicon and MLX.",
         ),
     )

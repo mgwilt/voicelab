@@ -2,10 +2,11 @@
 
 import time
 from collections.abc import Callable
-from typing import Protocol
+from typing import Protocol, override
 
 import torch
 from torch import Tensor
+from transformers.generation.streamers import BaseStreamer
 
 from voicelab_core.synthesis import ChunkArrival, SynthesisMetrics
 from voicelab_inference.sesame.torch.audio import Audio, validate_audio
@@ -17,7 +18,7 @@ class AudioDecoder(Protocol):
     def close(self) -> None: ...
 
 
-class AudioStreamer:
+class AudioStreamer(BaseStreamer):
     """Consume Transformers frames; callers own cleanup even after cancellation."""
 
     def __init__(
@@ -51,7 +52,10 @@ class AudioStreamer:
         self.arrivals: list[ChunkArrival] = []
         self.codec_seconds = 0.0
 
-    def put(self, value: Tensor) -> None:
+    @override
+    def put(self, value: object) -> None:
+        if not isinstance(value, Tensor):
+            raise TypeError("CSM streamer requires a tensor")
         if self.prompt_pending:
             self.prompt_pending = False
             return
@@ -84,6 +88,7 @@ class AudioStreamer:
         self.emitted += len(chunk)
         self.pending.clear()
 
+    @override
     def end(self) -> None:
         if not self.ended:
             if self.frame_count == 0:

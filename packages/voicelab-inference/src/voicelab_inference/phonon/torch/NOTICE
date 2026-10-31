@@ -1,0 +1,4 @@
+Frame-wise sampling follows Hugging Face Transformers 5.22.1, models/pocket_tts/generation_pocket_tts.py.
+Copyright 2026 The HuggingFace Inc. team. Apache-2.0; see LICENSE.
+Source: https://github.com/huggingface/transformers
+Voice Lab changes: single-request frame iterator, explicit EOS and tail handling, causal prefix PCM decoding and callback cancellation.

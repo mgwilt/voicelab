@@ -9,6 +9,7 @@ from typing import Literal
 
 from pydantic import TypeAdapter
 
+from voicelab.sesame.context import load_context
 from voicelab.sesame.experiments import run_trial
 from voicelab_inference.sesame.torch.audio import read_reference
 from voicelab_inference.sesame.torch.runtime import ReferenceSpeech, ResidentCSM
@@ -28,6 +29,9 @@ class Arguments(argparse.Namespace):
     warmup: bool
     reference_audio: Path | None
     reference_text: str | None
+    temperature: float
+    top_k: int
+    context: Path | None
 
 
 def main() -> None:
@@ -48,16 +52,26 @@ def main() -> None:
     parser.add_argument("--warmup", action="store_true")
     parser.add_argument("--reference-audio", type=Path)
     parser.add_argument("--reference-text")
+    parser.add_argument("--temperature", type=float, default=0.9)
+    parser.add_argument("--top-k", type=int, default=50)
+    parser.add_argument(
+        "--context", type=Path, help="JSON list of prior audio/text/speaker turns"
+    )
     args = parser.parse_args(namespace=Arguments())
     if not 1 <= args.trials <= 100:
         parser.error("trials must be between 1 and 100")
     if (args.reference_audio is None) != (args.reference_text is None):
         parser.error("Reference audio and transcript must be supplied together")
+    if args.context is not None and args.reference_audio is not None:
+        parser.error("Use --context or --reference-audio, not both")
     request = SynthesisRequest(
         text=args.text,
         speaker=TypeAdapter(Literal[0, 1]).validate_python(args.speaker),
         seed=args.seed,
         max_frames=args.max_frames,
+        temperature=args.temperature,
+        top_k=args.top_k,
+        context=load_context(args.context) if args.context is not None else (),
     )
     reference = (
         ReferenceSpeech(read_reference(args.reference_audio), args.reference_text)
@@ -86,21 +100,24 @@ def main() -> None:
         )
         + "\n"
     )
-    if args.warmup:
-        run_trial(
-            runtime,
-            request,
-            args.output / "warmup",
-            args.workspace,
-            reference,
-            warmup=True,
-        )
-    for index in range(args.trials):
-        metrics = run_trial(
-            runtime,
-            request,
-            args.output / f"trial-{index + 1:03}",
-            args.workspace,
-            reference,
-        )
-        print(json.dumps(asdict(metrics)))
+    try:
+        if args.warmup:
+            run_trial(
+                runtime,
+                request,
+                args.output / "warmup",
+                args.workspace,
+                reference,
+                warmup=True,
+            )
+        for index in range(args.trials):
+            metrics = run_trial(
+                runtime,
+                request,
+                args.output / f"trial-{index + 1:03}",
+                args.workspace,
+                reference,
+            )
+            print(json.dumps(asdict(metrics)))
+    finally:
+        runtime.close()

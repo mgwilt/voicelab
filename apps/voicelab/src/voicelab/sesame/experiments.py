@@ -7,6 +7,7 @@ import wave
 from dataclasses import asdict
 from pathlib import Path
 
+from voicelab.synthesis.evidence import request_evidence
 from voicelab_core.provenance import runtime_evidence
 from voicelab_core.synthesis import SynthesisMetrics
 from voicelab_inference.sesame.torch.audio import Audio, pcm16
@@ -36,7 +37,7 @@ def run_trial(
         "device": runtime.device,
         "precision": runtime.precision,
         "codec_precision": "float32",
-        "request": request.model_dump(),
+        "request": request_evidence(request),
         "warmup": warmup,
         "runtime": asdict(
             runtime_evidence(workspace, ("torch", "transformers", "numpy"))
@@ -66,8 +67,8 @@ def run_trial(
 
             metrics = runtime.synthesize(request, emit, reference)
         report["metrics"] = asdict(metrics)
-        report["status"] = "complete" if metrics.eos else "incomplete"
-        if not metrics.eos:
+        report["status"] = metrics.completion_state
+        if metrics.completion_state != "complete":
             raise RuntimeError("Frame limit reached before EOS; partial audio retained")
         return metrics
     except Exception as exc:

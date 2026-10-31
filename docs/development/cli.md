@@ -8,7 +8,8 @@ The checkout command is `./voicelab`. It starts the shared website when no subco
 - `voicelab.launch.cli`: argument routing and explicit model/runtime commands.
 - `voicelab.launch.workspace`: environment preparation, asset builds, and process replacement.
 - `voicelab.<model>.cli`: model-specific arguments and runtime construction.
-- `voicelab.<model>.experiments`: experiment execution and reports.
+- `voicelab.<model>.experiments`: model-specific experiment execution and reports.
+- `voicelab.synthesis`: shared artifact writing and lifecycle for compatible synthesis workflows.
 
 Keep the launcher dependent on the standard library only.
 Root help and model listing must not install inference dependencies or load weights.

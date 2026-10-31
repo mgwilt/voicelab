@@ -9,6 +9,7 @@ from mlx_audio.tts.models.breeze_tts.breeze_tts import Model
 from mlx_audio.tts.models.qwen3_tts.speech_tokenizer import Qwen3TTSSpeechTokenizer
 from mlx_audio.tts.utils import load_model
 
+from voicelab_inference.audio import reference_pcm
 from voicelab_inference.breeze.mlx.sampling import (
     Sampler,
     backbone_scores,
@@ -64,19 +65,24 @@ class BreezeModel:
     def frames(self, request: SynthesisRequest) -> Iterator[mx.array | None]:
         """Yield sixteen-codebook frames; None is a sampled utterance EOS."""
         model = self._model
+        reference = (
+            mx.array(reference_pcm(request.ref_audio, SAMPLE_RATE))
+            if request.ref_audio is not None
+            else None
+        )
         conditional = model._prompt_embeddings(
             request.text,
             voice="S0",
             instruct=request.instruction,
-            ref_audio=None,
-            ref_text=None,
+            ref_audio=reference,
+            ref_text=request.ref_text,
         )
         unconditional = model._prompt_embeddings(
             request.text,
             voice="S0",
             instruct=None,
-            ref_audio=None,
-            ref_text=None,
+            ref_audio=reference,
+            ref_text=request.ref_text,
         )
         cond_cache = model.backbone_model.make_cache()
         uncond_cache = model.backbone_model.make_cache()
@@ -93,7 +99,14 @@ class BreezeModel:
                 model.lm_head(uncond_hidden),
                 request.cfg_scale,
             )
-            first = sampler.sample(backbone_scores(scores))
+            first = sampler.sample(
+                backbone_scores(
+                    scores,
+                    temperature=request.temperature,
+                    top_k=request.top_k,
+                    top_p=request.top_p,
+                )
+            )
             if first.item() == EOS_TOKEN:
                 yield None
                 return
@@ -113,7 +126,10 @@ class BreezeModel:
                 )
                 token = sampler.sample(
                     depth_scores(
-                        guidance(cond_logits, uncond_logits, request.cfg_scale)
+                        guidance(cond_logits, uncond_logits, request.cfg_scale),
+                        temperature=request.temperature,
+                        top_k=request.top_k,
+                        top_p=request.top_p,
                     )
                 )
                 tokens.append(token.reshape(1))

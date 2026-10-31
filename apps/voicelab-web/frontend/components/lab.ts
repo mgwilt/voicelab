@@ -69,9 +69,9 @@ export class Lab {
     this.panelHost.replaceChildren(this.panel.element);
     this.title.textContent = model.label;
     this.picker.select(model.id);
-    this.start.textContent = model.kind === "duplex" ? "Start conversation" : "Generate speech";
+    this.start.textContent = model.kind === "synthesis" ? "Generate speech" : "Start test";
     this.measurements.reset(); this.transcript.reset();
-    this.transcript.show(model.kind === "duplex");
+    this.transcript.show(model.kind !== "synthesis");
     this.switching = false;
     this.renderState({ phase: "idle", message: "Ready. The first test loads the model.", error: false });
   }

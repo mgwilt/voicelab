@@ -1,0 +1,14 @@
+Thinker decoding adapted from mlx-audio 0.6.3, stt/models/ming_v3_asr/ming_v3_asr.py.
+Copyright (c) 2024 Prince Canuma. MIT License; see LICENSE.
+Source: https://github.com/Blaizzy/mlx-audio
+Voice Lab changes: cancellation at every prefill block and generated token,
+explicit EOS result, greedy-only decoding, typed adapter boundary.
+
+Voice Lab also adapts message preparation, answer parsing and Talker sampling
+from MLX-Audio 0.6.3. Reference voices use its bundled CAMPPlus encoder and VAE.
+
+Voice Lab isolates the MLX random state for model loading and each request,
+exposes Talker sampling controls, and retains explicit termination evidence.
+Native Ming text segmentation and per-fragment silence trimming follow
+MLX-Audio's bailingmm generator. Voice Lab applies a single request-wide
+acoustic-step budget and requires EOS for every fragment before completion.

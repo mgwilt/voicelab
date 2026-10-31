@@ -25,7 +25,7 @@ async def serve_session[Request: BaseModel](
     listener: asyncio.Task[None] | None = None
     try:
         raw = await asyncio.wait_for(socket.receive_text(), timeout=15)
-        if len(raw) > 16_384:
+        if len(raw) > 17 * 1024 * 1024:
             raise ValueError("Request too large")
         request = service.request_type.model_validate_json(raw)
         await socket.send_json({"type": "ready", "sample_rate": service.sample_rate})
@@ -48,7 +48,7 @@ async def serve_session[Request: BaseModel](
                 elif isinstance(event, SynthesisMetrics):
                     await socket.send_json(
                         {
-                            "type": "complete" if event.eos else "incomplete",
+                            "type": event.completion_state,
                             "metrics": asdict(event),
                         }
                     )
@@ -63,7 +63,16 @@ async def serve_session[Request: BaseModel](
             await socket.send_json(
                 {"type": "error", "message": "Synthesis session timed out."}
             )
-    except (ValidationError, ValueError) as exc:
+    except ValidationError as exc:
+        errors = exc.errors(
+            include_input=False, include_url=False, include_context=False
+        )
+        message = "; ".join(
+            f"{'.'.join(map(str, error['loc']))}: {error['msg']}" for error in errors
+        )
+        with suppress(WebSocketDisconnect):
+            await socket.send_json({"type": "error", "message": message})
+    except ValueError as exc:
         with suppress(WebSocketDisconnect):
             await socket.send_json({"type": "error", "message": str(exc)})
     except WebSocketDisconnect:

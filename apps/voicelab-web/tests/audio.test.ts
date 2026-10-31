@@ -32,3 +32,15 @@ test("a microphone permission grant after cancellation releases all tracks", asy
   await Promise.resolve();
   expect(stopped).toBe(2);
 });
+
+test("PersonaPlex resampling keeps continuous 24 kHz frames", () => {
+  const source = new Float32Array(48000).fill(0.5);
+  const resampler = new PcmResampler(48000, 24000);
+  const frames: ArrayBuffer[] = [];
+  for (let i = 0; i < source.length; i += 128) resampler.push(source.subarray(i, i + 128), frame => frames.push(frame));
+  expect(frames.length).toBe(12);
+  expect(frames.every(frame => frame.byteLength === 3840)).toBe(true);
+  const last = frames.at(-1);
+  if (last === undefined) throw new Error("Missing audio frame");
+  expect(new DataView(last).getInt16(3838, true)).toBe(16384);
+});

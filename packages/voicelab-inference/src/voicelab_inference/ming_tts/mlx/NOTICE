@@ -1,0 +1,14 @@
+Sampling adapted from mlx-audio 0.6.3, mlx_audio/tts/models/bailingmm/bailingmm.py.
+Copyright (c) 2024 Prince Canuma. MIT License; see LICENSE.
+Source: https://github.com/Blaizzy/mlx-audio
+Voice Lab changes: explicit request-local PRNG keys, stop signal retention,
+validated request controls, local reference conditioning and explicit completion.
+
+CAM++ frontend follows inclusionAI/Ming-3.0-tts spkemb_extractor.py, revision 9332fb9443325d4726ce02cefd4ec1c211df4079, MIT License.
+Source: https://github.com/inclusionAI/Ming-3.0-tts
+Voice Lab changes: strict typed waveform and 192-dimensional embedding validation.
+
+Reference posterior sampling follows the source model's AudioVAE use of
+Diffusers OobleckDiagonalGaussianDistribution: standard deviation is
+softplus(scale) + 1e-4. Voice Lab applies explicit request-local randomness
+and optional documented acoustic-reference tail trimming.

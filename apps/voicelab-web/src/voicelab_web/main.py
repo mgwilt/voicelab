@@ -33,7 +33,7 @@ def main() -> None:
         port=config.port,
         ssl_certfile=config.certfile,
         ssl_keyfile=config.keyfile,
-        ws_max_size=16384,
+        ws_max_size=17 * 1024 * 1024,
         ws_max_queue=4,
         proxy_headers=False,
     )

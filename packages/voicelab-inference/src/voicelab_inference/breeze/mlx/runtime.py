@@ -26,6 +26,15 @@ class BreezeMLX:
         with self._lock:
             self._load()
 
+    def close(self) -> None:
+        with self._lock:
+            if self._model is not None:
+                import mlx.core as mx
+
+                mx.synchronize()
+                self._model = None
+                mx.clear_cache()
+
     def _load(self) -> None:
         if platform.system() != "Darwin" or platform.machine() != "arm64":
             raise RuntimeError("Breeze MLX requires Apple Silicon macOS")

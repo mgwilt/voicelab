@@ -1,0 +1,8 @@
+PersonaPlex scheduling and prompt replay follow NVIDIA/personaplex at
+3428dfd95309a7f3c84fd93259ded0f810d1ff91 and mu-hashmi/personaplex-mlx at
+7b29cfc4d9110f6b9d831b141e62f3d16f0bbe77.
+Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+Copyright (c) Kyutai, all rights reserved (MLX scheduler reference).
+NVIDIA and MLX reference MIT terms are retained in LICENSE and LICENSE-mlx-reference.
+Model weights have separate terms.
+MLX-Audio 0.6.3 supplies the Moshi and Mimi network primitives under its MIT license.

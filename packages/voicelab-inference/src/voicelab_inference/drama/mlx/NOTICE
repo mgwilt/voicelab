@@ -1,0 +1,10 @@
+Drama generation.py is adapted from MLX-Audio 0.6.3:
+Distribution: https://pypi.org/project/mlx-audio/0.6.3/
+Source module: mlx_audio/tts/models/fish_drama3/drama3.py
+Project: https://github.com/Blaizzy/mlx-audio
+The dependency artifact and its hash are recorded in uv.lock.
+
+Voice Lab changes: typed request boundary, supplied prior-take history,
+explicit generator lifetime, and laboratory measurement integration.
+Model math, sampling, text chunking, and DAC decoding remain in the locked dependency.
+The original MIT license is retained in LICENSE.

@@ -2,6 +2,7 @@
 name = "voicelab-models"
 version = "0.1.0"
 requires-python = ">=3.14,<3.15"
+license-files = ["src/voicelab_models/nemotron/LICENSE-nvidia", "src/voicelab_models/nemotron/NOTICE"]
 dependencies = ["voicelab-core", "pydantic>=2.14.2"]
 
 [tool.uv.sources]

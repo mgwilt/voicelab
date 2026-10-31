@@ -1,0 +1,20 @@
+Nemotron offline tool-response adaptation
+
+The tool preparation, timeline expansion and prompt formatting follow NVIDIA
+NeMo Speech source at 097dfe9e2f55baf653b83035868bdc89849f1b47:
+- nemo/collections/speechlm2/models/duplex_stt_model.py
+- examples/speechlm2/function_calling/template.jinja
+- nemo/collections/speechlm2/inference/utils/offline_voicechat.py
+Copyright NVIDIA CORPORATION; Apache-2.0 (LICENSE-nvidia).
+
+The local decoder loop adapts MLX-VLM 0.7.11
+mlx_vlm/models/nemotron_voicechat/session.py, Copyright 2025 Prince Canuma;
+MIT (LICENSE). Model weights remain OpenMDW-1.1 licensed separately.
+
+Voice Lab changes: bounded supplied-response validation, independent local
+MLX timeline preparation, response-only teacher forcing, two-pass evidence,
+cancellation checks, and separate detection/continuation measurements.
+
+Reviewed local source SHA-256 values:
+nemotron-stt-reference.py: 415e1e01584bab96d9c059d5b0fe9162adaf19677ef43e565c3afad6e073e74b
+nemotron-tools-template.jinja: 8b4f88e9f0052c0dfc19896b9d6a84821f68f84a1049406908e1f664155edcc9

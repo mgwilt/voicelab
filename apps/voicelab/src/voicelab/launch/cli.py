@@ -49,6 +49,48 @@ def commands() -> tuple[ModelCommand, ...]:
             "Instruction-guided speech synthesis",
             (RuntimeCommand("mlx", "voicelab-breeze"),),
         ),
+        ModelCommand(
+            "phonon",
+            "Phonon experiments",
+            (RuntimeCommand("torch", "voicelab-phonon"),),
+        ),
+        ModelCommand(
+            "kokoro", "Kokoro experiments", (RuntimeCommand("mlx", "voicelab-kokoro"),)
+        ),
+        ModelCommand(
+            "audio8", "Audio8 experiments", (RuntimeCommand("mlx", "voicelab-audio8"),)
+        ),
+        ModelCommand(
+            "ming-tts",
+            "Ming Tts experiments",
+            (RuntimeCommand("mlx", "voicelab-ming-tts"),),
+        ),
+        ModelCommand(
+            "drama", "Drama experiments", (RuntimeCommand("mlx", "voicelab-drama"),)
+        ),
+        ModelCommand(
+            "maya", "Maya experiments", (RuntimeCommand("mlx", "voicelab-maya"),)
+        ),
+        ModelCommand(
+            "omnivoice",
+            "Omnivoice experiments",
+            (RuntimeCommand("torch", "voicelab-omnivoice"),),
+        ),
+        ModelCommand(
+            "kitten",
+            "Kitten experiments",
+            (RuntimeCommand("torch", "voicelab-kitten"),),
+        ),
+        ModelCommand(
+            "personaplex",
+            "Personaplex experiments",
+            (RuntimeCommand("mlx", "voicelab-personaplex"),),
+        ),
+        ModelCommand(
+            "ming-audio",
+            "Ming Audio experiments",
+            (RuntimeCommand("mlx", "voicelab-ming-audio"),),
+        ),
     )
 
 
@@ -107,7 +149,7 @@ def main(argv: list[str] | None = None) -> int:
     if command == "models":
         for model in models:
             runtimes = ", ".join(runtime.name for runtime in model.runtimes)
-            print(f"{model.name:10} {runtimes:8} {model.label}")
+            print(f"{model.name:12} {runtimes:8} {model.label}")
         return 0
     root = Path(__file__).resolve().parents[5]
     workspace = Workspace(root)

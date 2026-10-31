@@ -42,7 +42,7 @@ def runtime_evidence(
         workspace / "pyproject.toml",
         workspace / "voicelab",
     ]
-    for root in (workspace / "apps", workspace / "packages"):
+    for root in (workspace / "apps", workspace / "packages", workspace / "third_party"):
         paths.extend(
             path
             for path in root.rglob("*")

@@ -1,6 +1,6 @@
 # Nemotron MLX
 
-Read docs/models/nemotron.md and docs/usage/measurements.md.
+Read docs/models/conversation/nemotron.md and docs/usage/measurements.md.
 
 - Give each model and stream an explicit owner.
 - Synchronize device work before recording completed timings.

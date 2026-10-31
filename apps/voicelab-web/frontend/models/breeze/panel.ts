@@ -1,45 +1,36 @@
-import { element, integerInput, labeled, readInteger } from "../../components/dom.js";
-import type { ControlPanel } from "../../components/panel.js";
-import type { BreezeModel, Emit, ExperimentSession } from "../../domain/experiment.js";
-import { SynthesisSession } from "../synthesis/session.js";
+import type { BreezeModel } from "../../domain/experiment.js";
+import { SpeechPanel } from "../synthesis/form.js";
+import type { SynthesisRequest } from "./request.js";
 
-export class BreezePanel implements ControlPanel {
-  readonly element = element("div", "control-panel");
-  private readonly text = element("textarea");
-  private readonly instruction = element("textarea");
-  private readonly seed = integerInput(0, 0, 4294967295);
-  private readonly frames = integerInput(750, 1, 750);
-  private readonly guidance = element("input");
-
-  constructor(private readonly model: BreezeModel) {
-    this.text.value = "Hello. This is a speech test in Voice Lab.";
-    this.text.rows = 4; this.text.maxLength = 4000; this.text.required = true;
-    this.instruction.value = "A clear, natural conversational voice.";
-    this.instruction.rows = 2; this.instruction.maxLength = 2000; this.instruction.required = true;
-    this.guidance.type = "number"; this.guidance.min = "0.1"; this.guidance.max = "20";
-    this.guidance.step = "0.1"; this.guidance.value = "4"; this.guidance.required = true;
-    const row = element("div", "field-grid");
-    row.append(labeled("Seed", this.seed), labeled("Guidance", this.guidance), labeled("Frame limit", this.frames));
-    this.element.append(labeled("Text to speak", this.text), labeled("Voice instruction", this.instruction,
-      "Describe the voice, delivery, or emotion."), row,
-      element("p", "workflow-note", "Guidance controls how strongly the voice follows the instruction. A frame-limit cutoff is reported as incomplete."));
+export class BreezePanel extends SpeechPanel<SynthesisRequest> {
+  constructor(model: BreezeModel) {
+    super(model, form => {
+      const text = form.text("Text to speak", "Hello. This is a speech test in Voice Lab.", 4000);
+      const mode = form.choice("Voice mode", ["design", "clone", "direction"], "design");
+      const instruction = form.text("Voice instruction (design or direction)", "A clear, natural conversational voice.", 2000);
+      const audio = form.referenceAudio("Reference voice (clone or direction)");
+      const transcript = form.optionalText("Exact reference transcript", 4000);
+      const advanced = form.section("Generation controls");
+      const seed = advanced.integer("Seed", 0, 0, 4294967295);
+      const frames = advanced.integer("Frame limit", 750, 1, 750);
+      const guidance = advanced.decimal("Guidance", 4, 0.1, 20);
+      const temperature = advanced.decimal("Temperature", 0.9, 0.01, 2);
+      const topK = advanced.integer("Top K", 50, 0, 2048);
+      const topP = advanced.decimal("Top P", 1, 0.01, 1);
+      form.note("Cloning preserves the reference voice; direction also applies your instruction. A frame-limit cutoff is incomplete.");
+      return async () => {
+        const selected = mode();
+        const refAudio = await audio();
+        const refText = transcript();
+        if (selected !== "design" && (refAudio === null || refText === null)) throw new Error("Cloning and direction require reference audio and its exact transcript.");
+        if (selected === "design" && (refAudio !== null || refText !== null)) throw new Error("Select clone or direction to use a reference.");
+        return {
+          text: text(), instruction: selected === "clone" ? null : instruction(),
+          ref_audio: refAudio, ref_text: refText,
+          seed: seed(), max_frames: frames(), cfg_scale: guidance(),
+          temperature: temperature(), top_k: topK(), top_p: topP(),
+        };
+      };
+    });
   }
-  createSession(emit: Emit): ExperimentSession {
-    if (this.text.value.trim() === "" || this.instruction.value.trim() === "") {
-      throw new Error("Enter text and a voice instruction.");
-    }
-    const guidance = this.guidance.valueAsNumber;
-    if (!this.guidance.checkValidity() || !Number.isFinite(guidance) || guidance <= 0) {
-      this.guidance.reportValidity();
-      throw new Error("Guidance must be greater than 0 and at most 20.");
-    }
-    return new SynthesisSession({ model: this.model, request: {
-      text: this.text.value, instruction: this.instruction.value,
-      seed: readInteger(this.seed), cfg_scale: guidance, max_frames: readInteger(this.frames),
-    } }, emit);
-  }
-  setDisabled(disabled: boolean): void {
-    for (const input of [this.text, this.instruction, this.seed, this.frames, this.guidance]) input.disabled = disabled;
-  }
-  dispose(): void { this.element.remove(); }
 }

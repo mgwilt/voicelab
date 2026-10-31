@@ -10,6 +10,16 @@ voicelab = "voicelab.launch.cli:main"
 voicelab-breeze = "voicelab.breeze.cli:main"
 voicelab-sesame = "voicelab.sesame.cli:main"
 voicelab-nemotron = "voicelab.nemotron.cli:main"
+voicelab-phonon = "voicelab.phonon.cli:main"
+voicelab-kokoro = "voicelab.kokoro.cli:main"
+voicelab-audio8 = "voicelab.audio8.cli:main"
+voicelab-ming-tts = "voicelab.ming_tts.cli:main"
+voicelab-drama = "voicelab.drama.cli:main"
+voicelab-maya = "voicelab.maya.cli:main"
+voicelab-omnivoice = "voicelab.omnivoice.cli:main"
+voicelab-kitten = "voicelab.kitten.cli:main"
+voicelab-personaplex = "voicelab.personaplex.cli:main"
+voicelab-ming-audio = "voicelab.ming_audio.cli:main"
 
 [tool.uv.sources]
 voicelab-core = { workspace = true }

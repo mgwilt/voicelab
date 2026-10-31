@@ -8,6 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Protocol
 
+from voicelab.synthesis.evidence import request_evidence
 from voicelab_core.provenance import runtime_evidence
 from voicelab_core.synthesis import SynthesisMetrics
 from voicelab_inference.breeze.mlx.audio import Audio, pcm16
@@ -48,7 +49,7 @@ def run_trial(
         "implementation": runtime.implementation,
         "device": runtime.device,
         "precision": runtime.precision,
-        "request": request.model_dump(),
+        "request": request_evidence(request),
         "warmup": warmup,
         "runtime": asdict(runtime_evidence(workspace, ("mlx", "mlx-audio", "numpy"))),
         "timing": (
@@ -68,8 +69,8 @@ def run_trial(
 
             metrics = runtime.synthesize(request, emit)
         report["metrics"] = asdict(metrics)
-        report["status"] = "complete" if metrics.eos else "incomplete"
-        if not metrics.eos:
+        report["status"] = metrics.completion_state
+        if metrics.completion_state != "complete":
             raise RuntimeError("Frame limit reached before EOS; partial audio retained")
         return metrics
     except Exception as exc:

@@ -1,3 +1,4 @@
+import type { AddedSynthesisId } from "../frontend/domain/experiment.js";
 import { expect, test } from "bun:test";
 import { decode as nemotron } from "../frontend/models/nemotron/protocol.js";
 import { decode as sesame } from "../frontend/models/synthesis/protocol.js";
@@ -25,6 +26,13 @@ test("Nemotron wire events retain the input RTF boundary", () => {
   expect(() => nemotron('null')).toThrow();
 });
 
+test("Nemotron function-channel text remains observable without executing it", () => {
+  expect(nemotron('{"type":"function_delta","text":"lookup_weather"}')).toEqual({
+    type: "function_delta", text: "lookup_weather",
+  });
+  expect(() => nemotron('{"type":"function_delta","text":42}')).toThrow();
+});
+
 test("Sesame validates completion and reports output RTF separately", () => {
   const metrics = { eos: true, output_rtf: .9, audio_seconds: 3.2, first_pcm_seconds: .3 };
   const event = sesame(JSON.stringify({ type: "complete", metrics }));
@@ -35,4 +43,27 @@ test("Sesame validates completion and reports output RTF separately", () => {
   expect(() => sesame(JSON.stringify({ type: "incomplete", metrics }))).toThrow();
   expect(() => sesame('{"type":"ready","sample_rate":16000}')).toThrow();
   expect(() => sesame(JSON.stringify({ type: "complete", metrics: { ...metrics, output_rtf: -1 } }))).toThrow();
+});
+
+test("synthesis preserves unknown completion and validates negotiated sample rates", () => {
+  const metrics = { eos: null, completion: "unverified", output_rtf: 0.5, audio_seconds: 2, first_pcm_seconds: 0.2 };
+  expect(sesame(JSON.stringify({ type: "unverified", metrics })).type).toBe("unverified");
+  expect(() => sesame(JSON.stringify({ type: "complete", metrics }))).toThrow();
+  expect(() => sesame(JSON.stringify({ type: "complete", metrics: { ...metrics, eos: false, completion: "complete" } }))).toThrow();
+  expect(() => sesame(JSON.stringify({ type: "incomplete", metrics: { ...metrics, eos: true, completion: "incomplete" } }))).toThrow();
+  expect(sesame(JSON.stringify({ type: "complete", metrics: { ...metrics, completion: "complete" } })).type).toBe("complete");
+  expect(sesame('{"type":"ready","sample_rate":44100}', 44100).type).toBe("ready");
+  expect(() => sesame('{"type":"ready","sample_rate":24000}', 44100)).toThrow();
+});
+
+test("added catalog workflows reject swapped endpoints and sample rates", () => {
+  const models: readonly (readonly [AddedSynthesisId, number])[] = [["phonon", 24000], ["kokoro", 24000], ["audio8", 44100], ["ming_tts", 44100],
+    ["drama", 44100], ["maya", 24000], ["omnivoice", 24000], ["kitten", 24000]];
+  for (const [id, rate] of models) {
+    const row = { id, kind: "synthesis", endpoint: `/api/${id}/session`, output_sample_rate: rate,
+      label: String(id), description: "Speech", backend: "Local", available: true, reason: null };
+    expect(decodeCatalog([row])[0]?.id).toBe(id);
+    expect(() => decodeCatalog([{ ...row, output_sample_rate: 16000 }])).toThrow();
+    expect(() => decodeCatalog([{ ...row, endpoint: "/api/sesame/session" }])).toThrow();
+  }
 });

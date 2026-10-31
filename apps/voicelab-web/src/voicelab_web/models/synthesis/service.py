@@ -5,7 +5,7 @@ import threading
 from collections.abc import Callable
 from contextlib import suppress
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from pydantic import BaseModel
 
@@ -17,6 +17,11 @@ class Synthesizer[Request: BaseModel](Protocol):
     def synthesize(
         self, request: Request, emit: Callable[[Audio], None]
     ) -> SynthesisMetrics: ...
+
+
+@runtime_checkable
+class Closable(Protocol):
+    def close(self) -> None: ...
 
 
 @dataclass(frozen=True)
@@ -65,6 +70,14 @@ class SynthesisService[Request: BaseModel]:
         self.sample_rate = sample_rate
         self.runtime: Synthesizer[Request] | None = None
         self.lock = threading.Lock()
+
+    def unload(self) -> None:
+        """Release residency only after the session worker has released its lock."""
+        with self.lock:
+            runtime = self.runtime
+            self.runtime = None
+            if isinstance(runtime, Closable):
+                runtime.close()
 
     def generate(self, request: Request, delivery: Delivery) -> None:
         if not self.lock.acquire(blocking=False):

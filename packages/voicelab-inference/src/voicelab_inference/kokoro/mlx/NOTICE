@@ -1,0 +1,5 @@
+Text frontends use the unmodified Misaki 0.9.4 source in third_party/misaki.
+Source: https://github.com/hexgrad/misaki
+License: Apache-2.0; see LICENSE and third_party/misaki/UPSTREAM.md.
+Voice Lab provides typed request validation, native MLX-Audio integration,
+and a verified UniDic cache for the Japanese frontend.

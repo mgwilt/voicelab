@@ -1,6 +1,6 @@
 # Breeze MLX
 
-Read docs/models/breeze.md.
+Read docs/models/synthesis/breeze.md.
 
 - Preserve LICENSE and NOTICE.
 - Keep vendor model details in vendor.py.

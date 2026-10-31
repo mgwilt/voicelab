@@ -1,6 +1,6 @@
 # Sesame PyTorch
 
-Read docs/models/sesame.md.
+Read docs/models/synthesis/sesame.md.
 
 - Preserve LICENSE and NOTICE. Record any change to source algorithm behavior.
 - Serialize model access. Keep Mimi state local to each request.

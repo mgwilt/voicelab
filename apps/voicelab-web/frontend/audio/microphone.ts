@@ -17,13 +17,13 @@ export class Microphone {
     await context.audioWorklet.addModule("/static/dist/capture-worklet.js");
     signal.throwIfAborted();
   }
-  start(context: AudioContext, send: (pcm: ArrayBuffer) => void): void {
+  start(context: AudioContext, send: (pcm: ArrayBuffer) => void, outputRate: 16000 | 24000 = 16000): void {
     if (this.stream === null || this.capture !== null) throw new Error("Invalid capture state");
     this.source = context.createMediaStreamSource(this.stream);
     this.filter = context.createBiquadFilter();
     this.filter.type = "lowpass";
-    this.filter.frequency.value = 7200;
-    this.capture = new AudioWorkletNode(context, "capture");
+    this.filter.frequency.value = outputRate * 0.45;
+    this.capture = new AudioWorkletNode(context, "capture", { processorOptions: { outputRate } });
     this.capture.port.onmessage = (event: MessageEvent<unknown>) => {
       if (event.data instanceof ArrayBuffer) send(event.data);
     };

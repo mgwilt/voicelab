@@ -2,7 +2,14 @@
 
 import platform
 import wave
+from collections.abc import Callable
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+from voicelab_models.nemotron.tools import ToolSettings
+
+if TYPE_CHECKING:
+    from voicelab_inference.nemotron.mlx.tool_result import ToolResult
 
 from voicelab_core.contracts import GenerationSettings, SpeechOutput
 from voicelab_inference.nemotron.mlx.streaming import NemotronStream
@@ -33,6 +40,28 @@ class NemotronMLX:
 
         mx.synchronize()
 
+    def generate_with_tool(
+        self,
+        source: Path,
+        destination: Path,
+        settings: GenerationSettings,
+        tools: ToolSettings,
+        should_cancel: Callable[[], bool] | None = None,
+    ) -> ToolResult:
+        from voicelab_inference.nemotron.mlx.tools import (
+            generate_with_response,
+            never_cancel,
+        )
+
+        return generate_with_response(
+            self._session,
+            source,
+            destination,
+            settings,
+            tools,
+            should_cancel or never_cancel,
+        )
+
     def generate(
         self, source: Path, destination: Path, settings: GenerationSettings
     ) -> SpeechOutput:
@@ -41,12 +70,15 @@ class NemotronMLX:
 
         if not settings.prompt.isascii():
             raise ValueError("Nemotron system prompts must be ASCII.")
-        result = self._session.generate(
-            str(source),
-            system_prompt=settings.prompt,
-            seed=settings.seed,
-            extra_decoding_seconds=settings.trailing_silence_seconds,
-        )
+        from voicelab_inference.nemotron.mlx.sampling import preserved
+
+        with preserved():
+            result = self._session.generate(
+                str(source),
+                system_prompt=settings.prompt,
+                seed=settings.seed,
+                extra_decoding_seconds=settings.trailing_silence_seconds,
+            )
         mx.eval(result.audio, result.function_tokens)
         samples = np.asarray(result.audio, dtype=np.float32).reshape(-1)
         if samples.size == 0 or not np.isfinite(samples).all():

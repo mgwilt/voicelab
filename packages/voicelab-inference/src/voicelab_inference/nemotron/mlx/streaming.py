@@ -12,17 +12,27 @@ class NemotronStream:
     def __init__(self, parent: VoiceChatSession, prompt: str, seed: int) -> None:
         if not prompt.isascii():
             raise ValueError("Nemotron system prompts must be ASCII.")
-        self._stream = parent.create_streaming_session(
-            system_prompt=prompt,
-            seed=seed,
-            profile=True,
-            max_streaming_seconds=120,
-        )
+        from voicelab_inference.nemotron.mlx.sampling import SamplingState
+
+        self._sampling = SamplingState()
+        self._closed = False
+        try:
+            self._stream = parent.create_streaming_session(
+                system_prompt=prompt,
+                seed=seed,
+                profile=True,
+                max_streaming_seconds=120,
+            )
+        except BaseException:
+            self._sampling.restore()
+            raise
 
     def push(self, pcm: bytes) -> tuple[StreamEvent, ...]:
         import mlx.core as mx
         import numpy as np
 
+        if self._closed:
+            raise RuntimeError("Nemotron stream is closed.")
         if len(pcm) != FRAME_BYTES:
             raise ValueError("Expected exactly 80 ms of mono 16 kHz PCM16.")
         samples = np.frombuffer(pcm, dtype="<i2").astype(np.float32) / 32768.0
@@ -57,5 +67,11 @@ class NemotronStream:
     def close(self) -> None:
         import mlx.core as mx
 
-        self._stream.cancel()
-        mx.synchronize()
+        if self._closed:
+            return
+        self._closed = True
+        try:
+            self._stream.cancel()
+            mx.synchronize()
+        finally:
+            self._sampling.restore()

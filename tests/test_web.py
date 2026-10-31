@@ -34,6 +34,25 @@ class FakeEngine(Engine):
 
 
 class WebTests(unittest.TestCase):
+    def test_reference_validation_does_not_echo_recording_payload(self) -> None:
+        secret_audio = "PRIVATE_RECORDING_CONTENT_NOT_BASE64"
+        with (
+            TestClient(create_app(ServerConfig(), FakeEngine())) as client,
+            client.websocket_connect(
+                "/api/sesame/session", headers={"origin": "http://testserver"}
+            ) as socket,
+        ):
+            socket.send_json(
+                {
+                    "text": "Hello",
+                    "ref_audio": {"wav_base64": secret_audio},
+                    "ref_text": "Reference",
+                }
+            )
+            error = socket.receive_json()
+            self.assertEqual(error["type"], "error")
+            self.assertNotIn(secret_audio, error["message"])
+
     def test_rtf_uses_input_timeline(self) -> None:
         metrics = FrameMetrics()
         self.assertIsNone(metrics.summary()["rtf"])
@@ -58,7 +77,9 @@ class WebTests(unittest.TestCase):
         with TestClient(create_app(ServerConfig(), engine)) as client:
             self.assertEqual(client.get("/").status_code, 200)
             self.assertEqual(client.get("/.local/server.toml").status_code, 404)
-            with client.websocket_connect("/api/nemotron/session") as socket:
+            with client.websocket_connect(
+                "/api/nemotron/session", headers={"origin": "http://testserver"}
+            ) as socket:
                 socket.send_json({"type": "start"})
                 self.assertEqual(socket.receive_json()["type"], "loading")
                 self.assertEqual(socket.receive_json()["type"], "ready")
@@ -73,18 +94,24 @@ class WebTests(unittest.TestCase):
     def test_second_session_is_rejected(self) -> None:
         with (
             TestClient(create_app(ServerConfig(), FakeEngine())) as client,
-            client.websocket_connect("/api/nemotron/session") as first,
+            client.websocket_connect(
+                "/api/nemotron/session", headers={"origin": "http://testserver"}
+            ) as first,
         ):
             first.send_json({"type": "start"})
             first.receive_json()
             first.receive_json()
-            with client.websocket_connect("/api/nemotron/session") as second:
+            with client.websocket_connect(
+                "/api/nemotron/session", headers={"origin": "http://testserver"}
+            ) as second:
                 self.assertEqual(second.receive_json()["type"], "error")
 
     def test_invalid_audio_is_rejected(self) -> None:
         with (
             TestClient(create_app(ServerConfig(), FakeEngine())) as client,
-            client.websocket_connect("/api/nemotron/session") as socket,
+            client.websocket_connect(
+                "/api/nemotron/session", headers={"origin": "http://testserver"}
+            ) as socket,
         ):
             socket.send_json({"type": "start"})
             socket.receive_json()
@@ -108,10 +135,40 @@ class WebTests(unittest.TestCase):
             self.assertEqual(catalog.status_code, 200)
             rows = catalog.json()
             self.assertEqual(
-                [row["id"] for row in rows], ["nemotron", "sesame", "breeze"]
+                [row["id"] for row in rows],
+                [
+                    "nemotron",
+                    "sesame",
+                    "breeze",
+                    "phonon",
+                    "kokoro",
+                    "audio8",
+                    "ming_tts",
+                    "drama",
+                    "maya",
+                    "omnivoice",
+                    "kitten",
+                    "personaplex",
+                    "ming_audio",
+                ],
             )
             self.assertEqual(
-                [row["output_sample_rate"] for row in rows], [22050, 24000, 24000]
+                [row["output_sample_rate"] for row in rows],
+                [
+                    22050,
+                    24000,
+                    24000,
+                    24000,
+                    24000,
+                    44100,
+                    44100,
+                    44100,
+                    24000,
+                    24000,
+                    24000,
+                    24000,
+                    44100,
+                ],
             )
             self.assertEqual(client.get("/static/dist/main.js").status_code, 200)
             self.assertEqual(
@@ -123,13 +180,22 @@ class WebTests(unittest.TestCase):
     def test_one_lease_across_different_models(self) -> None:
         with (
             TestClient(create_app(ServerConfig(), FakeEngine())) as client,
-            client.websocket_connect("/api/nemotron/session") as first,
+            client.websocket_connect(
+                "/api/nemotron/session", headers={"origin": "http://testserver"}
+            ) as first,
         ):
             first.send_json({"type": "start"})
             first.receive_json()
             first.receive_json()
             self.assertEqual(client.get("/health").json()["active_model"], "nemotron")
-            for route in ("/api/sesame/session", "/api/breeze/session"):
+            for route in (
+                "/api/sesame/session",
+                "/api/breeze/session",
+                "/api/phonon/session",
+                "/api/maya/session",
+                "/api/personaplex/session",
+                "/api/ming_audio/session",
+            ):
                 with client.websocket_connect(
                     route, headers={"origin": "http://testserver"}
                 ) as second:

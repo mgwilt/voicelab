@@ -1,4 +1,5 @@
-export type ModelId = "nemotron" | "sesame" | "breeze";
+export type AddedSynthesisId = "phonon" | "kokoro" | "audio8" | "ming_tts" | "drama" | "maya" | "omnivoice" | "kitten";
+export type ModelId = "nemotron" | "sesame" | "breeze" | AddedSynthesisId | "personaplex" | "ming_audio";
 
 interface ModelBase {
   readonly label: string;
@@ -26,25 +27,42 @@ export interface BreezeModel extends ModelBase {
   readonly endpoint: "/api/breeze/session";
   readonly outputSampleRate: 24000;
 }
-export type SynthesisModel = SesameModel | BreezeModel;
-export type Model = DuplexModel | SynthesisModel;
+interface SynthesisRates {
+  phonon: 24000; kokoro: 24000; audio8: 44100; ming_tts: 44100;
+  drama: 44100; maya: 24000; omnivoice: 24000; kitten: 24000;
+}
+export type AddedSynthesisModel = {
+  [Id in AddedSynthesisId]: ModelBase & { readonly id: Id; readonly kind: "synthesis";
+    readonly endpoint: `/api/${Id}/session`; readonly outputSampleRate: SynthesisRates[Id] }
+}[AddedSynthesisId];
+export interface PersonaPlexModel extends ModelBase {
+  readonly id: "personaplex"; readonly kind: "duplex";
+  readonly endpoint: "/api/personaplex/session";
+  readonly inputSampleRate: 24000; readonly outputSampleRate: 24000;
+}
+export interface MingAudioModel extends ModelBase {
+  readonly id: "ming_audio"; readonly kind: "conversation";
+  readonly endpoint: "/api/ming_audio/session"; readonly outputSampleRate: 44100;
+}
+export type SynthesisModel = SesameModel | BreezeModel | AddedSynthesisModel;
+export type Model = DuplexModel | SynthesisModel | PersonaPlexModel | MingAudioModel;
 export type Phase = "idle" | "preparing" | "running" | "draining" | "stopping";
 export interface Measurement {
   readonly basis: "input" | "output";
   readonly rtf: number | null;
   readonly audioSeconds: number;
   readonly latencyMs: number | null;
-  readonly latencyLabel: "Frame p95" | "First PCM";
+  readonly latencyLabel: "Frame p95" | "First PCM" | "Compute to first PCM";
   readonly backlogSeconds: number | null;
 }
 export interface Outcome {
-  readonly kind: "complete" | "incomplete" | "cancelled";
+  readonly kind: "complete" | "incomplete" | "unverified" | "cancelled";
   readonly message: string;
 }
 export type SessionEvent =
   | { readonly type: "status"; readonly phase: Phase; readonly message: string }
   | { readonly type: "measurement"; readonly value: Measurement }
-  | { readonly type: "transcript"; readonly speaker: "user" | "assistant"; readonly text: string };
+  | { readonly type: "transcript"; readonly speaker: "user" | "assistant" | "function"; readonly text: string };
 export type Emit = (event: SessionEvent) => void;
 export interface ExperimentSession {
   run(signal: AbortSignal): Promise<Outcome>;

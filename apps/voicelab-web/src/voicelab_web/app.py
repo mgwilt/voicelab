@@ -2,7 +2,6 @@
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from functools import partial
 from pathlib import Path
 
 from fastapi import FastAPI, WebSocket
@@ -12,10 +11,13 @@ from fastapi.staticfiles import StaticFiles
 from voicelab_models.breeze.synthesis import SynthesisRequest as BreezeRequest
 from voicelab_models.sesame.model import SynthesisRequest as SesameRequest
 from voicelab_web.catalog import ModelInfoUnion, models
+from voicelab_web.models.conversation_routes import install as install_conversations
 from voicelab_web.models.nemotron.engine import Engine
 from voicelab_web.models.nemotron.session import serve_session as serve_nemotron
+from voicelab_web.models.nemotron.tool_session import serve_tool_session
+from voicelab_web.models.synthesis.composition import install as install_synthesis
+from voicelab_web.models.synthesis.routes import SynthesisRoutes
 from voicelab_web.models.synthesis.service import SynthesisService, Synthesizer
-from voicelab_web.models.synthesis.session import serve_session as serve_synthesis
 from voicelab_web.schemas import ServerConfig
 from voicelab_web.transport.lease import SessionLease
 
@@ -61,10 +63,25 @@ def create_app(
         try:
             yield
         finally:
-            await owned_engine.call(owned_engine.close_session)
+            await synthesis_routes.release()
+            await owned_engine.call(owned_engine.unload)
             owned_engine.shutdown()
 
     app = FastAPI(title="Voice Lab", lifespan=lifespan, docs_url=None, redoc_url=None)
+
+    async def release_duplex() -> None:
+        await owned_engine.call(owned_engine.unload)
+
+    synthesis_routes = SynthesisRoutes(app, lease, release_duplex)
+    synthesis_routes.add("sesame", synthesis)
+    synthesis_routes.add("breeze", breeze_synthesis)
+    install_synthesis(synthesis_routes, config)
+
+    async def release_local() -> None:
+        await synthesis_routes.release()
+        await release_duplex()
+
+    install_conversations(app, lease, release_local)
     static = Path(__file__).parent / "static"
 
     @app.get("/")
@@ -92,19 +109,19 @@ def create_app(
 
     @app.websocket("/api/nemotron/session")
     async def nemotron_session(socket: WebSocket) -> None:
-        await lease.run(
-            socket, "nemotron", partial(serve_nemotron, socket, owned_engine)
-        )
+        async def run() -> None:
+            await synthesis_routes.release()
+            await serve_nemotron(socket, owned_engine)
 
-    @app.websocket("/api/sesame/session")
-    async def sesame_session(socket: WebSocket) -> None:
-        await lease.run(socket, "sesame", partial(serve_synthesis, socket, synthesis))
+        await lease.run(socket, "nemotron", run)
 
-    @app.websocket("/api/breeze/session")
-    async def breeze_session(socket: WebSocket) -> None:
-        await lease.run(
-            socket, "breeze", partial(serve_synthesis, socket, breeze_synthesis)
-        )
+    @app.websocket("/api/nemotron/tools")
+    async def nemotron_tools(socket: WebSocket) -> None:
+        async def run() -> None:
+            await synthesis_routes.release()
+            await serve_tool_session(socket, owned_engine)
+
+        await lease.run(socket, "nemotron", run)
 
     app.mount("/static", StaticFiles(directory=static), name="static")
     return app

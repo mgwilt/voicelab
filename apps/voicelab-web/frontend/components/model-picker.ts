@@ -1,6 +1,10 @@
 import type { Model, ModelId } from "../domain/experiment.js";
 import { element } from "./dom.js";
 
+const workflowLabels: Record<Model["kind"], string> = {
+  duplex: "Live conversation", synthesis: "Text to speech", conversation: "Audio and text",
+};
+
 export class ModelPicker {
   readonly element = element("div", "model-grid");
   private readonly listeners = new AbortController();
@@ -14,7 +18,7 @@ export class ModelPicker {
       button.setAttribute("aria-pressed", "false");
       button.disabled = !model.available;
       const label = element("span", "model-card-title", model.label);
-      const kind = element("span", "tag", model.kind === "duplex" ? "Live conversation" : "Text to speech");
+      const kind = element("span", "tag", workflowLabels[model.kind]);
       button.append(label, kind, element("span", "model-description", model.description),
         element("span", "model-backend", model.available ? model.backend : model.reason ?? "Unavailable"));
       button.addEventListener("click", () => select(model), { signal: this.listeners.signal });

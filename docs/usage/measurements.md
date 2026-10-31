@@ -17,6 +17,7 @@ Read the model guide for the exact timing boundary.
 
 First PCM measures when the runtime produces its first decoded audio chunk.
 Frame latency measures processing time for a model frame.
+PersonaPlex reports compute time to first PCM. It excludes waits between live input frames.
 Neither value includes all network, browser queue, and speaker delay.
 Neither value alone proves conversational turn-taking latency.
 
@@ -43,10 +44,14 @@ Retain these details when the workflow supplies them:
 - Runtime identity, settings, software versions, and hardware.
 - Input, reference, and output hashes.
 - Source and dependency-lock hashes.
+- Auxiliary codec checkpoint revisions and installed text frontend package versions.
 - Raw output, status, timing values, and measurement limits.
 
 Label warmup reports separately. Keep failed reports and partial audio.
-For synthesis, an end-of-sequence (EOS) event confirms completion.
+For synthesis, an end-of-sequence (EOS) event can confirm completion.
+Models without EOS can confirm completion through their generation algorithm.
+If an upstream API hides its stop reason, the report marks completion as `unverified`.
+An unverified result is not a completed synthesis benchmark.
 A frame limit without EOS means incomplete output. Do not count that result as a completed synthesis benchmark.
 
 Keep raw evidence under ignored `artifacts/`. Review evidence before public release.

@@ -16,10 +16,13 @@ class DependencyTests(unittest.TestCase):
                 namespace = parts[0]
                 allowed = ["voicelab_core"]
                 if namespace == "voicelab_models":
+                    allowed.append("voicelab_models.audio")
                     allowed.append(".".join(parts[:2]))
                 elif namespace == "voicelab_inference":
                     allowed.extend(
                         [
+                            "voicelab_models.audio",
+                            "voicelab_inference.audio",
                             f"voicelab_models.{parts[1]}",
                             ".".join(parts[:3]),
                         ]

@@ -15,7 +15,7 @@ members = ["packages/*", "apps/*"]
 [tool.ruff]
 extend-include = ["voicelab"]
 target-version = "py314"
-extend-exclude = [".local", "artifacts"]
+extend-exclude = [".local", "artifacts", "third_party/misaki/misaki"]
 src = ["packages/*/src", "apps/*/src"]
 
 [tool.ruff.lint]
@@ -38,4 +38,4 @@ dev = [
 ]
 
 [tool.ty.src]
-exclude = [".local/**", "artifacts/**"]
+exclude = [".local/**", "artifacts/**", "third_party/misaki/misaki/**"]

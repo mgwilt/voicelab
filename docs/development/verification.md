@@ -30,6 +30,7 @@ Cover malformed inputs, failed runs, incomplete output, cancellation, and artifa
 Make tests deterministic where possible.
 A fake runtime does not prove inference. An import does not prove model execution.
 Offline output does not prove streaming behavior or performance.
+For model integrations, also follow [model acceptance](model-acceptance.md).
 
 Run real model experiments separately. Retain their evidence under ignored `artifacts/`.
 Use the [measurement procedure](../usage/measurements.md) for performance claims.

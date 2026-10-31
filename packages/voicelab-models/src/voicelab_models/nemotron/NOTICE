@@ -1,0 +1,5 @@
+The tool system-prompt formatting in tools.py adapts NVIDIA NeMo Speech's
+examples/speechlm2/function_calling/template.jinja at revision
+097dfe9e2f55baf653b83035868bdc89849f1b47.
+Copyright NVIDIA CORPORATION; Apache-2.0 (LICENSE-nvidia).
+Voice Lab changes: strict bounded input models and direct system-only formatting.

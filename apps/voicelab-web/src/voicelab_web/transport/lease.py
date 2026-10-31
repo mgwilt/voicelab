@@ -19,7 +19,7 @@ class SessionLease:
     ) -> None:
         origin = socket.headers.get("origin")
         expected = f"{'https' if socket.url.scheme == 'wss' else 'http'}://{socket.headers.get('host')}"
-        if origin is not None and origin != expected:
+        if origin != expected:
             await socket.close(code=1008)
             return
         if self.active is not None:

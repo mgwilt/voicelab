@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "misaki"
+version = "0.9.4"
+description = "Upstream Misaki with Python metadata extended for Voice Lab"
+requires-python = ">=3.10,<3.15"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["addict", "regex"]
+
+[project.optional-dependencies]
+en = ["espeakng-loader==0.2.4", "num2words", "phonemizer==3.4.0", "spacy>=3.8.18,<3.9"]
+ja = ["pyopenjtalk>=0.4.1", "fugashi", "jaconv", "mojimoji", "unidic"]
+zh = ["cn2an", "jieba", "ordered-set", "pypinyin", "pypinyin-dict"]
+
+[tool.setuptools.packages.find]
+include = ["misaki*"]
+
+[tool.setuptools.package-data]
+misaki = ["data/*.json", "data/*.txt", "g2pkc/*.csv", "g2pkc/*.txt", "g2pkc/*.md"]

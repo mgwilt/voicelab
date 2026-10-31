@@ -38,6 +38,9 @@ export class DuplexSession implements ExperimentSession {
             case "assistant_text_delta": case "user_transcript_delta":
               this.emit({ type: "transcript", speaker: message.type === "assistant_text_delta" ? "assistant" : "user", text: message.text });
               return undefined;
+            case "function_delta":
+              this.emit({ type: "transcript", speaker: "function", text: message.text });
+              return undefined;
             case "done":
               this.emit({ type: "measurement", value: message.value });
               return { kind: "complete", message: "Session complete" };
